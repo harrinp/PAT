@@ -1,14 +1,14 @@
 #ifndef DECISION_HPP
 #define DECISION_HPP
 
-#include <mysql_connection.h>
-#include <mysql/mysql.h>
-#include <cppconn/driver.h>
-#include <cppconn/exception.h>
-#include <cppconn/resultset.h>
-#include <cppconn/statement.h>
-#include <cppconn/prepared_statement.h>
-#include <unistd.h>
+//#include <mysql_connection.h>
+//#include <mysql/mysql.h>
+//#include <cppconn/driver.h>
+//#include <cppconn/exception.h>
+//#include <cppconn/resultset.h>
+// #include <cppconn/statement.h>
+// #include <cppconn/prepared_statement.h>
+// #include <unistd.h>
 #include "TestExec.hpp"
 
 class Decision {

@@ -9,9 +9,9 @@ int main(int argc, char const *argv[]) {
     std::vector<Trade> trades = Trade::translateTrades(j);
     std::cout << "\nBUY/SELL" << "\n\n";
     //e.test();
-    //Executor::buyOrSell(400, std::string("EUR_USD"));
+    Executor::buyOrSell(-400, std::string("EUR_USD"));
 
-    std::cout << json::parse("{\"currentUnits\": \"400\",\"financing\": \"0.0000\",\"id\": \"270\",\"initialUnits\": \"400\",\"instrument\": \"EUR_USD\",\"marginUsed\": \"9.9570\",\"openTime\": \"1517817786.492831462\",\"price\": \"1.24451\",\"realizedPL\": \"0.0000\",\"state\": \"OPEN\",\"unrealizedPL\": \"0.0080\"}").dump(4) << '\n';
+    //std::cout << json::parse("{\"currentUnits\": \"400\",\"financing\": \"0.0000\",\"id\": \"270\",\"initialUnits\": \"400\",\"instrument\": \"EUR_USD\",\"marginUsed\": \"9.9570\",\"openTime\": \"1517817786.492831462\",\"price\": \"1.24451\",\"realizedPL\": \"0.0000\",\"state\": \"OPEN\",\"unrealizedPL\": \"0.0080\"}").dump(4) << '\n';
 
 
 

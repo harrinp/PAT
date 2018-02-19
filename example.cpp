@@ -12,11 +12,11 @@ int main()
 
 
    // downloading data from the 1st of Janurary 2007 and recording them in QuotesDB database
-   //conn.initAllTabs("QuotesDB","2007-01-01 00:00:00");
+   conn.initAllTabs("QuotesDB","2007-01-01 00:00:00");
    // it will then download data for every pair (INSTRUMENT,GRANULARITY) defined in QuotesDB.hpp
 
    // you can the update later the database by simply doing:
-   conn.updateAllTabs("QuotesDB");
+   //conn.updateAllTabs("QuotesDB");
 
    //conn.updateTab("QuotesDB", "EUR_USD", "M1");
 
