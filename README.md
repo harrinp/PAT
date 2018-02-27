@@ -21,7 +21,7 @@ These directions are at least somewhat accurate for Ubuntu 16.04 and other Debia
 2. At some point you will go through a set up process for the MySQL server. Set the password for root to whatever you like, and remember it.
 3. Make sure that MySQL is started with "service mysql status"
 4. If it’s not started do "service mysql start"
-5. Try to login with "mysql -u root (-p <YOURPASSWORD>)" Only do the stuff in parentheses if you set a password
+5. Try to login with "mysql -u root (-p {YOURPASSWORD})" Only do the stuff in parentheses if you set a password
 7. If you can’t connect, try adding sudo to the command.
 8. If you can connect when you use sudo then you will have trouble getting the code to connect. Try these directions, adding your password if you set one:
 
