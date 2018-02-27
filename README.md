@@ -28,6 +28,7 @@ These directions are at least somewhat accurate for Ubuntu 16.04 and other Debia
 ![alt text](https://github.com/harrinp/PAT/blob/master/readme1.png "Fixing messed up MySQL permissions")
 
 To complete step 2 in those directions you will want to run "select host, user, password from mysql.user;"
+
 9. If you can log in now, you’re good.
 10. While you are logged in, run the command "CREATE database quotesDB;" This makes the database for the example code that we’ll run to make sure everything works
 
