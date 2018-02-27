@@ -11,7 +11,7 @@ These directions are at least somewhat accurate for Ubuntu 16.04 and other Debia
 4. Navigate to our Github at https://github.com/harrinp/PAT.
 5. Using the green “Clone or download” button on the right, grab the url for cloning the repository.
 6. Open a terminal window in the folder for the code that you opened earlier, and type "git init"
-7. "git remote add origin <URL>"
+7. "git remote add origin {URL}"
 8. "git pull origin master"
 9. Wait for the process to complete, and check out the folders for your shiny new algorithmic trading code.
 
