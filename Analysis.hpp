@@ -10,6 +10,8 @@
 #include <cppconn/prepared_statement.h>
 #include <unistd.h>
 #include "QuotesDB.hpp"
+#include "DataBase.hpp"
+#include "OandaAPI.hpp"
 
 class Analysis{
 public:

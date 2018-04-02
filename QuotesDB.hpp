@@ -38,8 +38,8 @@ static const std::string USER = "root";
 static const std::string PASSWORD = "";
 
 // OANDA parameters
-static const std::string ACCOUNT_ID = "<account id here>";
-static const std::string ACCESS_TOKEN = "<access token here>";
+static const std::string ACCOUNT_ID = "101-001-6844455-001";
+static const std::string ACCESS_TOKEN = "3481fa8462af186c57b6d6d03a37a0fd-602c4ee66c827bcb87fabddd1da5c094";
 
 // instruments selected
 static const std::string INSTRUMENTS[] = {"EUR_USD"};
@@ -50,8 +50,8 @@ static const std::string GRANULARITIES[] = {"D","H4","H1","M1"};
 
 #include "DateTime.hpp"
 #include "Bar.hpp"
-#include "DataBase.hpp"
-#include "OandaAPI.hpp"
+//#include "DataBase.hpp"
+//#include "OandaAPI.hpp"
 
 //================================================================================================
 

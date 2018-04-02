@@ -1,22 +1,17 @@
 #include "Executor.hpp"
-
+#include "QuotesDB.hpp"
+#include "DataBase.hpp"
+#include "OandaAPI.hpp"
 using namespace Poco::Net;
 using namespace Poco;
 
-int main(int argc, char const *argv[]) {
-    Executor e;
-    json j = e.getTradesJson();
-    std::vector<Trade> trades = Trade::translateTrades(j);
-    std::cout << "\nBUY/SELL" << "\n\n";
-    //e.test();
-    Executor::buyOrSell(-400, std::string("EUR_USD"));
-
-    //std::cout << json::parse("{\"currentUnits\": \"400\",\"financing\": \"0.0000\",\"id\": \"270\",\"initialUnits\": \"400\",\"instrument\": \"EUR_USD\",\"marginUsed\": \"9.9570\",\"openTime\": \"1517817786.492831462\",\"price\": \"1.24451\",\"realizedPL\": \"0.0000\",\"state\": \"OPEN\",\"unrealizedPL\": \"0.0080\"}").dump(4) << '\n';
-
-
-
-    return 0;
-}
+// int main(int argc, char const *argv[]) {
+//     Executor e;
+//     json j = e.getTradesJson();
+//     std::vector<Trade> trades = Trade::translateTrades(j);
+//
+//     return 0;
+// }
 
 int Executor::buyOrSell(int units, std::string instrument) {
     json j = {
@@ -32,36 +27,38 @@ int Executor::buyOrSell(int units, std::string instrument) {
     std::vector <std::string> v;
 
     v.push_back("Accept-Datetime-Format: UNIX");
-    v.push_back("Authorization: Bearer 3481fa8462af186c57b6d6d03a37a0fd-602c4ee66c827bcb87fabddd1da5c094");
+    v.push_back("Authorization: Bearer " + ACCESS_TOKEN);
     v.push_back("Content-Type: application/json");
 
     Executor::post(std::string("/v3/accounts/" + ACCOUNT_ID + "/orders"), j, v);
     return 1;
 }
 
-Executor::Executor() : oanda("practice") {
+Executor::Executor() {
+
 }
 
-size_t Executor::responseWriter(void *contents, size_t size, size_t nmemb, std::string *s){
-    size_t newLength = size*nmemb;
+size_t Executor::responseWriter(void *contents, size_t size, size_t nmemb, std::string *s) {
+    size_t newLength = size * nmemb;
     size_t oldLength = s->size();
+
     try
     {
         s->resize(oldLength + newLength);
     }
-    catch(std::bad_alloc &e)
+    catch (std::bad_alloc&e)
     {
         //handle memory problem
         printf("shit\n");
     }
 
-    std::copy((char*)contents,(char*)contents+newLength,s->begin()+oldLength);
-    return size*nmemb;
+    std::copy((char *)contents, (char *)contents + newLength, s->begin() + oldLength);
+    return size * nmemb;
 }
 
 json Executor::post(std::string path, json j, std::vector <std::string> v) {
     std::string body = j.dump();
-    CURL *      curl  = curl_easy_init();
+    CURL *      curl = curl_easy_init();
     std::string s;  // Used by writing function
 
     curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "POST");
@@ -83,13 +80,13 @@ json Executor::post(std::string path, json j, std::vector <std::string> v) {
     CURLcode ret = curl_easy_perform(curl);
 
     // check for error during post
-    if (ret != CURLE_OK){
+    if (ret != CURLE_OK) {
         fprintf(stderr, "curl_easy_perform() failed: %s\n",
-                    curl_easy_strerror(ret));
+                curl_easy_strerror(ret));
         std::cout << ret << '\n';
     }
 
-    std::cout <<  json::parse(s).dump(4) << '\n';
+    //std::cout <<  json::parse(s).dump(4) << '\n';
 
     return json::parse(s);
 }
@@ -116,10 +113,31 @@ void Executor::test() {
     std::cout << j.dump(4) << std::endl;
 }
 
+double Executor::getProfit() {
+    double profit = 0;
+
+    for (size_t i = 0; i < trades.size(); i++) {
+        profit += trades[i].profit;
+    }
+    return profit;
+}
+
+double Executor::getBalance(){
+    std::string x;
+    qdb::OandaAPI oanda = qdb::OandaAPI("practice");
+    x = oanda.request(std::string("/v3/accounts/") + ACCOUNT_ID + std::string("/summary"));
+    json j = json::parse(x);
+    j = j.at("account").get<json>();
+    //std::cout << j.dump(4) << '\n';
+    double y = std::stod(j.at("balance").get<std::string>());
+    return y;
+}
+
 json Executor::getTradesJson() {
     std::string x;
+    qdb::OandaAPI oanda = qdb::OandaAPI("practice");
     x = oanda.request(std::string("/v3/accounts/") + ACCOUNT_ID + std::string("/openTrades"));
     json j = json::parse(x);
-    std::cout << j.dump(4) << std::endl;
+    //std::cout << j.dump(4) << std::endl;
     return j;
 }

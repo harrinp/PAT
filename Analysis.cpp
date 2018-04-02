@@ -1,17 +1,19 @@
 #include "Analysis.hpp"
 
-int main() {
+int main(int argc, char *argv[]) {
     Analysis a = Analysis();
-
-    //a.initializeMACDTable("MACD_EUR_USD_H1", "EUR_USD_H1");
-    //a.calcMACD("MACD_EUR_USD_H1", "EUR_USD_H1");
-    //a.initializeMACDTable("MACD_EUR_USD_M1", "EUR_USD_M1");
-    //a.calcMACD("MACD_EUR_USD_M1", "EUR_USD_M1");
+    if (argc > 1 && strcmp(argv[1], "-i")){
+        a.initializeMACDTable("MACD_EUR_USD_H1", "EUR_USD_H1");
+        a.calcMACD("MACD_EUR_USD_H1", "EUR_USD_H1");
+        a.initializeMACDTable("MACD_EUR_USD_M1", "EUR_USD_M1");
+        a.calcMACD("MACD_EUR_USD_M1", "EUR_USD_M1");
+    }
 
     a.analyze();
 
     delete a.con;
     return EXIT_SUCCESS;
+    return 0;
 }
 
 Analysis::Analysis() : conn("practice"){

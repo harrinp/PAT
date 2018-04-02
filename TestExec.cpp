@@ -1,5 +1,4 @@
 #include "TestExec.hpp"
-#include "Trade.hpp"
 
 BackExecutor::BackExecutor(double money, std::string table, double leverage) : USD(money), table(table), leverage(leverage) {
     //driver = get_driver_instance();

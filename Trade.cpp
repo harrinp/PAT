@@ -3,11 +3,10 @@
 
 Trade _convertTrade(json j){
     TradeType type = LONG;
-    std::cout << "Current units:" << '\n';
+    //std::cout << "Current units:" << '\n';
     if (std::stoi(j.at("currentUnits").get<std::string>()) < 0){
         type = SHORT;
     }
-    std::cout << "HI" << '\n';
     Trade t = Trade(
         type,       //TODO: change this to an inline-if (Whatever those are called I forget)
         abs(std::stoi(j.at("currentUnits").get<std::string>())),
@@ -19,19 +18,17 @@ Trade _convertTrade(json j){
         50.0,    // This is the amount of leverage, assumed to be 50 <- this needs work
         j.at("instrument").get<std::string>()
     );
-    std::cout << "HI" << '\n';
     t.profit = std::stod(j.at("unrealizedPL").get<std::string>());
     return t;
 }
 
 std::vector<Trade> Trade::translateTrades(json response){
-
+    std::cerr << "Translating trades:" << '\n';
     std::vector<Trade> trades;
 
     json j = response.at("trades").get<json>();
 
     for (auto& element : j) {
-        std::cout << "HI" << '\n';
         trades.push_back(_convertTrade(element));
 
         std::cout << trades.back().tradeAsString() << '\n';
@@ -42,7 +39,9 @@ std::vector<Trade> Trade::translateTrades(json response){
 std::string Trade::tradeAsString(){
     std::string s = "Trade : ";
     s.append(type == LONG ? "LONG\n" : "SHORT\n");
-    s.append("Time: ");
+    s.append("Current Units: ");
+    s.append(std::to_string(units));
+    s.append("\nTime: ");
     s.append(std::to_string(initialPrice.date));
     s.append("\nProfit: ");
     s.append(std::to_string(profit));
