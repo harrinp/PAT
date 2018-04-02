@@ -3,7 +3,7 @@
 int main(int argc, char *argv[]) {
     Analysis a = Analysis();
 
-    if (argc > 1 && strcmp(argv[1], "-i")) {
+    if (argc > 1 && strcmp(argv[1], "-i") == 0) {
         a.initializeMACDTable("MACD_EUR_USD_H1", "EUR_USD_H1");
         a.calcMACD("MACD_EUR_USD_H1", "EUR_USD_H1");
         a.initializeMACDTable("MACD_EUR_USD_M1", "EUR_USD_M1");
@@ -20,7 +20,7 @@ int main(int argc, char *argv[]) {
 
 Analysis::Analysis() : conn("practice") {
     driver = get_driver_instance();
-    con    = driver->connect("tcp://127.0.0.1:3306", "root", "");
+    con    = driver->connect(URL, USER, PASSWORD);
     //qdb::OandaAPI ;
 }
 
@@ -63,7 +63,7 @@ int Analysis::calcMACD(std::string result, std::string data) {
     int    prevDate = MACDDate;
 
     while (resDate->next()) {
-        std::cout << "~";
+        //std::cout << "~";
         int date = resDate->getInt("date");
 
         EMA12 = EMA(12, 0.0, prevDate, date, data, result, "EMA12", "closeAsk");
@@ -80,9 +80,9 @@ int Analysis::calcMACD(std::string result, std::string data) {
         prep_stmt->setDouble(6, (EMA12 - EMA26) - sign);
         prep_stmt->execute();
         prevDate = date;
-        // if (date % 3600 == 0) {
-        //     std::cout << date << "," << EMA12 << "," << EMA26 << "," << EMA12 - EMA26 << "," << sign << "," << (EMA12 - EMA26) - sign << '\n';
-        // }
+        if (date % 3600 == 0) {
+            std::cout << date << "," << EMA12 << "," << EMA26 << "," << EMA12 - EMA26 << "," << sign << "," << (EMA12 - EMA26) - sign << '\n';
+        }
     }
     delete resDate;
     delete stmt;
