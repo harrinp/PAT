@@ -30,6 +30,8 @@
 #include <cppconn/statement.h>
 #include <cppconn/prepared_statement.h>
 
+#include "Config.hpp"
+
 /*-------------------------------------------------------------------------------------------------*/
 
 // // MYSQL parameters

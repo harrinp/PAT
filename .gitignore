@@ -31,4 +31,4 @@
 *.out
 *.app
 
-config.cpp
+config.hpp

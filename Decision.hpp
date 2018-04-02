@@ -4,6 +4,7 @@
 #include "Trade.hpp"
 #include "TestExec.hpp"
 #include "Executor.hpp"
+#include "Config.hpp"
 
 class Decision {
 public:

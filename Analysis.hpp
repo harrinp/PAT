@@ -12,6 +12,7 @@
 #include "QuotesDB.hpp"
 #include "DataBase.hpp"
 #include "OandaAPI.hpp"
+#include "Config.hpp"
 
 class Analysis{
 public:
