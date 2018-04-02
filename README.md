@@ -38,13 +38,15 @@ To complete step 2 in those directions you will want to run "select host, user, 
 2. Make sure you install some packages that some of POCO depends on, or it won’t compile everything. These include "openssl libssl-dev libcurl4-openssl-dev" and "libboost-all-dev"
 3. For the rest of these directions, I’m using make and gmake interchangeably, they are different but they should both work.
 4. From there, check that you have a version of make that is at least 3.80 or newer with "make --version"
-5. Go to where you downloaded the library and do these commands:
+5. Go to where you downloaded the library and do these commands BUT with some changes:
 
 ![alt text](https://github.com/harrinp/PAT/blob/master/readme2.png "Compiling POCO")
 
-6. The make might take a long time. Be patient.
-7. Follow this with "sudo make -s install" to get the files into the directories
-8. That should work, but if you keep getting compile errors from not having some libraries, try running "sudo ldconfig" which should create any missing symbolic links.
+6. For "./configure" instead run "./configure --no-tests --no-samples" This reduces build times.
+7. For "make -s" instead run "make -j4" This reduces build times by making use of your nice multithreaded processor.
+8. The make might take a long time. Be patient.
+9. Follow this with "sudo make -s install" to get the files into the directories
+10. That should work, but if you keep getting compile errors from not having some libraries, try running "sudo ldconfig" which should create any missing symbolic links.
 
 ## Compiling
 
