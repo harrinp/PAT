@@ -1,5 +1,5 @@
-#include "Trade.hpp"
-#include <string>
+#include "Headers/Trade.hpp"
+//#include <string>
 
 Trade _convertTrade(json j){
     TradeType type = LONG;

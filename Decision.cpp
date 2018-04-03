@@ -1,4 +1,4 @@
-#include "Decision.hpp"
+#include "Headers/Decision.hpp"
 
 int main(int argc, char *argv[]) {
     Decision d = Decision(false, "EUR_USD_M1", "EUR_USD_H1", .007, .049);

@@ -1,7 +1,7 @@
-#include "Executor.hpp"
-#include "QuotesDB.hpp"
-#include "DataBase.hpp"
-#include "OandaAPI.hpp"
+#include "Headers/Executor.hpp"
+#include "Headers/QuotesDB.hpp"
+#include "Headers/DataBase.hpp"
+#include "Headers/OandaAPI.hpp"
 using namespace Poco::Net;
 using namespace Poco;
 

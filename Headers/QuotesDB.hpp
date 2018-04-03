@@ -52,8 +52,8 @@ static const std::string GRANULARITIES[] = {"D","H4","H1","M1"};
 
 #include "DateTime.hpp"
 #include "Bar.hpp"
-//#include "DataBase.hpp"
-//#include "OandaAPI.hpp"
+#include "DataBase.hpp"
+#include "OandaAPI.hpp"
 
 //================================================================================================
 
