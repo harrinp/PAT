@@ -1,5 +1,5 @@
 COMPILER = g++
-CCFLAGS1 = -lPocoNet -lPocoNetSSL -lPocoFoundation -lPocoJSON -lmysqlcppconn -lssl -lcrypto -I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib -lssl -lcrypto -I/usr/include/cppconn -std=c++11 -lcurl /Headers
+CCFLAGS1 = -lPocoNet -lPocoNetSSL -lPocoFoundation -lPocoJSON -lmysqlcppconn -lssl -lcrypto -I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib -lssl -lcrypto -I/usr/include/cppconn -std=c++11 -lcurl -I./Headers
 CCFLAGS2 = -lPocoNet -lPocoNetSSL -lPocoFoundation -lPocoJSON -lmysqlcppconn -lssl -lcrypto -I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib -lssl -lcrypto -std=c++11 -lcurl
 
 decide: Decision.cpp TestExec.cpp
@@ -13,7 +13,7 @@ example: example.cpp
 
 # Use these ones for if your Ubuntu install is unhappy
 decideU: Decision.cpp TestExec.cpp
-	${COMPILER} Decision.cpp TestExec.cpp Trade.cpp -o runD.out ${CCFLAGS1} -L/usr/lib -lmysqlcppconn
+	${COMPILER} Decision.cpp TestExec.cpp Executor.cpp Trade.cpp -o runD.out ${CCFLAGS1} -L/usr/lib -lmysqlcppconn
 analyzeU: Analysis.cpp
 	${COMPILER} Analysis.cpp -o runA.out ${CCFLAGS1} -L/usr/lib -lmysqlcppconn -lPocoNet -lPocoNetSSL
 executeU: Executor.cpp
