@@ -25,7 +25,7 @@ These directions are at least somewhat accurate for Ubuntu 16.04 and other Debia
 7. If you can’t connect, try adding sudo to the command.
 8. If you can connect when you use sudo then you will have trouble getting the code to connect. Try these directions, adding your password if you set one:
 
-![alt text](https://github.com/harrinp/PAT/blob/master/images/readme1.png "Fixing messed up MySQL permissions")
+![alt text](https://github.com/harrinp/PAT/blob/master/Images/readme1.png "Fixing messed up MySQL permissions")
 
 To complete step 2 in those directions you will want to run "select host, user, password from mysql.user;"
 
@@ -40,7 +40,7 @@ To complete step 2 in those directions you will want to run "select host, user, 
 4. From there, check that you have a version of make that is at least 3.80 or newer with "make --version"
 5. Go to where you downloaded the library and do these commands BUT with some changes:
 
-![alt text](https://github.com/harrinp/PAT/blob/master/images/readme2.png "Compiling POCO")
+![alt text](https://github.com/harrinp/PAT/blob/master/Images/readme2.png "Compiling POCO")
 
 6. For "./configure" instead run "./configure --no-tests --no-samples" This reduces build times.
 7. For "make -s" instead run "make -j4" This reduces build times by making use of your nice multithreaded processor.
@@ -57,7 +57,7 @@ To complete step 2 in those directions you will want to run "select host, user, 
 5. Open up the makefile in your favorite text editor
 6. Copy the individual recipes, and change the names to <name>U and then move the compiler flags from just after the compiler to after where the output file is specified. It should look something like this when you are done:
 
-![alt text](https://github.com/harrinp/PAT/blob/master/images/readme3.png "Tinkering with makefile")
+![alt text](https://github.com/harrinp/PAT/blob/master/Images/readme3.png "Tinkering with makefile")
 
 7. One you can get all the recipes to compile, try to run the example with "./runE.out"
 8. If you get rejected by MySQL, make sure that you have entered your password for your MySQL user
