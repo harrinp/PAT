@@ -6,6 +6,7 @@ int main(int argc, char *argv[]) {
     if (argc > 1 && strcmp(argv[1], "-i") == 0) {
         a.initializeMACDTable("MACD_EUR_USD_H1", "EUR_USD_H1");
         a.calcMACD("MACD_EUR_USD_H1", "EUR_USD_H1");
+
         a.initializeMACDTable("MACD_EUR_USD_M1", "EUR_USD_M1");
         a.calcMACD("MACD_EUR_USD_M1", "EUR_USD_M1");
     }

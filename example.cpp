@@ -3,6 +3,7 @@
 //=================================================================================================
 
 #include "Headers/QuotesDB.hpp"
+#include "Headers/Config.hpp"
 
 int main()
 {
@@ -12,7 +13,7 @@ int main()
 
 
    // downloading data from the 1st of Janurary 2007 and recording them in QuotesDB database
-   conn.initAllTabs("QuotesDB","2007-01-01 00:00:00");
+   conn.initAllTabs(DATABASE_NAME,"2007-01-01 00:00:00");
    // it will then download data for every pair (INSTRUMENT,GRANULARITY) defined in QuotesDB.hpp
 
    // you can the update later the database by simply doing:
@@ -24,7 +25,7 @@ int main()
 
    //std::cout << conn.getInstruments() << '\n';
 
-   qdb::DataBase db("QuotesDB");
+   //qdb::DataBase db(DATABASE);
 
    // qdb::Bar b = db.get_last_row("EUR_USD_D");
 
