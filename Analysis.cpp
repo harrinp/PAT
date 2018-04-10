@@ -42,20 +42,20 @@ void Analysis::analyze() {
 int Analysis::calcMACD(std::string result, std::string data) {
 //    std::cout << "RUNNING" << '\n';
     sql::Statement *stmt    = con->createStatement();
-    sql::ResultSet *resDate = stmt->executeQuery("SELECT date FROM quotesdb." + result + " ORDER BY date DESC LIMIT 1");
+    sql::ResultSet *resDate = stmt->executeQuery("SELECT date FROM " + DATABASE_NAME + "." + result + " ORDER BY date DESC LIMIT 1");
     resDate->next();
 
     int MACDDate = resDate->getInt(1);
 
     stmt    = con->createStatement();
-    resDate = stmt->executeQuery("SELECT date FROM quotesdb." + data + " ORDER BY date DESC LIMIT 1");
+    resDate = stmt->executeQuery("SELECT date FROM " + DATABASE_NAME + "." + data + " ORDER BY date DESC LIMIT 1");
     resDate->next();
 
     stmt    = con->createStatement();
-    resDate = stmt->executeQuery("SELECT * FROM quotesdb." + data + " WHERE date > " + std::to_string(MACDDate));
+    resDate = stmt->executeQuery("SELECT * FROM " + DATABASE_NAME + "." + data + " WHERE date > " + std::to_string(MACDDate));
 
     sql::PreparedStatement *prep_stmt;
-    prep_stmt = con->prepareStatement("INSERT INTO quotesdb." + result + "(date, EMA26, EMA12, MACD, sign, result) VALUES(?, ?, ?, ?, ?, ?)");
+    prep_stmt = con->prepareStatement("INSERT INTO " + DATABASE_NAME + "." + result + "(date, EMA26, EMA12, MACD, sign, result) VALUES(?, ?, ?, ?, ?, ?)");
 
     double EMA12    = 0.0;
     double EMA26    = 0.0;
@@ -91,7 +91,7 @@ int Analysis::calcMACD(std::string result, std::string data) {
 
 double Analysis::EMA(int num, double val, int prevDate, int newDate, std::string dataTableName, std::string resultTableName, std::string ema, std::string newDataField) {
     sql::Statement *stmt = con->createStatement();
-    sql::ResultSet *res  = stmt->executeQuery("SELECT * FROM quotesdb." + resultTableName + " WHERE date = " + std::to_string(prevDate));
+    sql::ResultSet *res  = stmt->executeQuery("SELECT * FROM " + DATABASE_NAME + "." + resultTableName + " WHERE date = " + std::to_string(prevDate));
     res->next();
     double prevEMA = res->getDouble(ema);
 
@@ -99,7 +99,7 @@ double Analysis::EMA(int num, double val, int prevDate, int newDate, std::string
 
     if (num != 9) {
         stmt = con->createStatement();
-        res  = stmt->executeQuery("SELECT * FROM quotesdb." + dataTableName + " WHERE date = " + std::to_string(newDate));
+        res  = stmt->executeQuery("SELECT * FROM " + DATABASE_NAME + "." + dataTableName + " WHERE date = " + std::to_string(newDate));
         res->next();
         ask = res->getDouble(newDataField);
     }else {
@@ -121,18 +121,18 @@ void Analysis::initializeMACDTable(std::string initialize, std::string data) {
      */
 
     sql::Statement *stmt = con->createStatement();
-    stmt->execute("TRUNCATE quotesdb." + initialize);
+    stmt->execute("TRUNCATE " + DATABASE_NAME + "." + initialize);
 
     /*
      *  getting the first EMA12 which is the linear average of first 12
      */
 
     stmt = con->createStatement();
-    sql::ResultSet *res = stmt->executeQuery("SELECT * FROM quotesdb." + data + " ORDER BY date ASC LIMIT 35");
+    sql::ResultSet *res = stmt->executeQuery("SELECT * FROM " + DATABASE_NAME + "." + data + " ORDER BY date ASC LIMIT 35");
 
     sql::PreparedStatement *prep_stmt;
 
-    prep_stmt = con->prepareStatement("INSERT INTO quotesdb." + initialize + "(date, EMA12) VALUES (?, ?)");
+    prep_stmt = con->prepareStatement("INSERT INTO " + DATABASE_NAME + "." + initialize + "(date, EMA12) VALUES (?, ?)");
 
     double asks [35];
 
@@ -178,7 +178,7 @@ void Analysis::initializeMACDTable(std::string initialize, std::string data) {
      *  getting the first EMA26 (linear average of first 26) while getting next EMA12 and MACD
      */
 
-    prep_stmt = con->prepareStatement("INSERT INTO quotesdb." + initialize + "(date, EMA26, EMA12, MACD) VALUES (?, ?, ?, ?)");
+    prep_stmt = con->prepareStatement("INSERT INTO " + DATABASE_NAME + "." + initialize + "(date, EMA26, EMA12, MACD) VALUES (?, ?, ?, ?)");
 
     res->next();
 
@@ -222,7 +222,7 @@ void Analysis::initializeMACDTable(std::string initialize, std::string data) {
 
     MACDs[8] = EMA12 - EMA26;
 
-    prep_stmt = con->prepareStatement("INSERT INTO quotesdb." + initialize + "(date, EMA26, EMA12, MACD, sign, result) VALUES(?, ?, ?, ?, ?, ?)");
+    prep_stmt = con->prepareStatement("INSERT INTO " + DATABASE_NAME + "." + initialize + "(date, EMA26, EMA12, MACD, sign, result) VALUES(?, ?, ?, ?, ?, ?)");
 
 
     prep_stmt->setDouble(3, EMA12);
