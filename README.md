@@ -34,7 +34,7 @@ To complete step 2 in those directions you will want to run "select host, user, 
 
 ## Installing POCO
 
-1. This library has to be compiled from source to do what we need. Head to their website and download the latest complete version of the linux source. 1.8.1 is confirmed working, but the version shouldn’t matter much.
+1. This library has to be compiled from source to do what we need. Head to their website and download the latest COMPLETE version of the linux source. 1.8.1 is confirmed working, but the version shouldn’t matter much.
 2. Make sure you install some packages that some of POCO depends on, or it won’t compile everything. These include "openssl libssl-dev libcurl4-openssl-dev" and "libboost-all-dev"
 3. For the rest of these directions, I’m using make and gmake interchangeably, they are different but they should both work.
 4. From there, check that you have a version of make that is at least 3.80 or newer with "make --version"
@@ -52,15 +52,9 @@ To complete step 2 in those directions you will want to run "select host, user, 
 
 1. Open a terminal window where you downloaded the code
 2. To make sure things work, run "make example"
-3. If it doesn’t compile because of libraries, check to make sure you installed everything above correctly. If you did, try "make exampleU"
-4. If that doesn’t work, we haven’t updated the makefile yet, so you’ll have to modify it
-5. Open up the makefile in your favorite text editor
-6. Copy the individual recipes, and change the names to <name>U and then move the compiler flags from just after the compiler to after where the output file is specified. It should look something like this when you are done:
-
-![alt text](https://github.com/harrinp/PAT/blob/master/Images/readme3.png "Tinkering with makefile")
-
-7. One you can get all the recipes to compile, try to run the example with "./runE.out"
-8. If you get rejected by MySQL, make sure that you have entered your password for your MySQL user
+3. If it doesn’t compile because of libraries, check to make sure you installed everything above correctly. If you did, try "make exampleU" (This activates the makes for Ubuntu so that might also be helpful).
+4. One you can get all the recipes (EXCEPT executor that is only for testing) to compile, try to run the example with "./runE.out"
+5. If you get rejected by MySQL, make sure that you have entered your password for your MySQL user
 
 From here, you should make an OANDA demo account. This will let you generate an API key, and then be able to put that in the program and start tinkering.
 
