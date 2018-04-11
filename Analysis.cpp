@@ -28,7 +28,7 @@ Analysis::Analysis() : conn("practice") {
 void Analysis::analyze() {
     while (true) {
         std::cout << "GET QUOTES:" << '\n';
-        conn.updateAllTabs("QuotesDB");
+        conn.updateAllTabs(DATABASE_NAME);
 
         std::cout << "ANALYZE H AND M" << '\n';
         calcMACD("MACD_EUR_USD_M1", "EUR_USD_M1");
@@ -122,7 +122,9 @@ void Analysis::initializeMACDTable(std::string initialize, std::string data) {
      */
 
     sql::Statement *stmt = con->createStatement();
-    stmt->execute("TRUNCATE " + DATABASE_NAME + "." + initialize);
+    // This is commented out because if there's nothing in the table to begin
+    // with, this crashes it
+    //stmt->execute("TRUNCATE " + DATABASE_NAME + "." + initialize);
 
     /*
      *  getting the first EMA12 which is the linear average of first 12
@@ -137,10 +139,9 @@ void Analysis::initializeMACDTable(std::string initialize, std::string data) {
 
     double asks [35];
 
-
     for (int i = 0; i < 12; i++) {
         res->next();
-        asks[i] += res->getDouble("closeAsk");
+        asks[i] = res->getDouble("closeAsk"); // Changed this from a += to an =
     }
     double ave   = 0.0;
     double count = 0.0;
