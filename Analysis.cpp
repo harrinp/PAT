@@ -1,4 +1,5 @@
 #include "Headers/Analysis.hpp"
+#include <time.h>
 
 int main(int argc, char *argv[]) {
     Analysis a = Analysis();
@@ -63,6 +64,10 @@ int Analysis::calcMACD(std::string result, std::string data) {
     double sign     = 0.0;
     int    prevDate = MACDDate;
 
+    // Adding time measuring code to see how long it takes
+    int prevTime = time(NULL);
+    int count = 0;
+
     while (resDate->next()) {
         //std::cout << "~";
         int date = resDate->getInt("date");
@@ -82,7 +87,9 @@ int Analysis::calcMACD(std::string result, std::string data) {
         prep_stmt->execute();
         prevDate = date;
         if (date % 3600 == 0) {
-            std::cout << date << "," << EMA12 << "," << EMA26 << "," << EMA12 - EMA26 << "," << sign << "," << (EMA12 - EMA26) - sign << '\n';
+            count++;
+            int curTime = time(NULL);
+            std::cout << count << " hours took " << curTime - prevTime << ". Average: " << (curTime - prevTime) / count << '\n';
         }
     }
     delete resDate;
