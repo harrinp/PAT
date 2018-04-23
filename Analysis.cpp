@@ -60,14 +60,14 @@ int Analysis::calcMACD(std::string result, std::string data) {
     // This looks like it is supposed to find the end date but I'm not totally
     // sure about that. It might not do anything anymore, it just gets
     // overwritten before it is used.
-    stmt    = con->createStatement();
-    resDate = stmt->executeQuery("SELECT date FROM " + DATABASE_NAME + "." + data + " ORDER BY date DESC LIMIT 1");
-    resDate->next();
+    //stmt    = con->createStatement();
+    //resDate = stmt->executeQuery("SELECT date FROM " + DATABASE_NAME + "." + data + " ORDER BY date DESC LIMIT 1");
+    //resDate->next();
 
     // Pulls out all the data from past where the current MACDs are. This could
     // probably be combined with what I did for resCloseAsk
-    stmt    = con->createStatement();
-    resDate = stmt->executeQuery("SELECT * FROM " + DATABASE_NAME + "." + data + " WHERE date > " + std::to_string(MACDDate));
+    //stmt    = con->createStatement();
+    resDate = stmt->executeQuery("SELECT date FROM " + DATABASE_NAME + "." + data + " WHERE date > " + std::to_string(MACDDate));
 
     // This prepares a statement that will insert the results into the database
     // during the loop
@@ -204,7 +204,7 @@ void Analysis::initializeMACDTable(std::string initialize, std::string data) {
     // with, this crashes it. Uncomment it if you messed up your table
     // TODO Make doing this a commandline flag so it is easy to throw everything
     // out if you need to
-    // stmt->execute("TRUNCATE " + DATABASE_NAME + "." + initialize);
+    //stmt->execute("TRUNCATE " + DATABASE_NAME + "." + initialize);
 
 
      //  getting the first EMA12 which is the linear average of first 12
