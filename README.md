@@ -136,6 +136,7 @@ sudo cp -r JSON/include/Poco/. /usr/include/Poco/
 sudo cp -r lib/Linux/x86_64/. /usr/local/lib
 ```
 This moves the POCO files to a reasonable library location.
+
 4. To make sure that your system will look for the libraries in the right place, start by opening `~/.bashrc`
 5. Add the line `LD_LIBRARY_PATH=/usr/local/lib` at the end of the file. Save and restart your terminal.
 6. Run `sudo ldconfig` to build the symbolic links necessary for GCC to find everything.
