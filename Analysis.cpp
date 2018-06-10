@@ -44,12 +44,12 @@ void Analysis::analyze() {
     }
 }
 
-int Analysis::calcMACD(std::string result, std::string data) {
+int Analysis::calcMACD(std::string resultTable, std::string dataTable) {
 //    std::cout << "RUNNING" << '\n';
 
     // Finds the last date that has a MACD already to start from there
     sql::Statement *stmt    = con->createStatement();
-    sql::ResultSet *resDate = stmt->executeQuery("SELECT date FROM " + DATABASE_NAME + "." + result + " ORDER BY date DESC LIMIT 1");
+    sql::ResultSet *resDate = stmt->executeQuery("SELECT date FROM " + DATABASE_NAME + "." + resultTable + " ORDER BY date DESC LIMIT 1");
     sql::ResultSet *resEMA;
 
     resDate->next();
@@ -67,12 +67,12 @@ int Analysis::calcMACD(std::string result, std::string data) {
     // Pulls out all the data from past where the current MACDs are. This could
     // probably be combined with what I did for resCloseAsk
     //stmt    = con->createStatement();
-    resDate = stmt->executeQuery("SELECT date FROM " + DATABASE_NAME + "." + data + " WHERE date > " + std::to_string(MACDDate));
+    resDate = stmt->executeQuery("SELECT date FROM " + DATABASE_NAME + "." + dataTable + " WHERE date > " + std::to_string(MACDDate));
 
     // This prepares a statement that will insert the results into the database
     // during the loop
     sql::PreparedStatement *prep_stmt;
-    prep_stmt = con->prepareStatement("INSERT INTO " + DATABASE_NAME + "." + result + "(date, EMA26, EMA12, MACD, sign, result) VALUES(?, ?, ?, ?, ?, ?)");
+    prep_stmt = con->prepareStatement("INSERT INTO " + DATABASE_NAME + "." + resultTable + "(date, EMA26, EMA12, MACD, sign, result) VALUES(?, ?, ?, ?, ?, ?)");
 
     // Initialze variables for use in the loop
     double EMA12    = 0.0;
@@ -82,7 +82,7 @@ int Analysis::calcMACD(std::string result, std::string data) {
 
     // This code block pulls in the data from the last entry in the table
     // That way the EMAs can be calculated with much fewer queries
-    resEMA = stmt->executeQuery("SELECT * FROM "+ DATABASE_NAME + "." + result + " WHERE date = " + std::to_string(MACDDate));
+    resEMA = stmt->executeQuery("SELECT * FROM "+ DATABASE_NAME + "." + resultTable + " WHERE date = " + std::to_string(MACDDate));
     resEMA->next();
     double prevEMA12 = resEMA->getDouble("EMA12");
     double prevEMA26 = resEMA->getDouble("EMA26");
@@ -91,13 +91,13 @@ int Analysis::calcMACD(std::string result, std::string data) {
     // This code pulls in all the closeAsks so that we can work with them in
     // in memory instead of querying. That should improve speed as well.
     // Looking at it now it would be possible to combine it with resDate
-    sql::ResultSet *resCloseAsk = stmt->executeQuery("SELECT closeAsk FROM " + DATABASE_NAME + "." + data + " WHERE date > " + std::to_string(MACDDate));
+    sql::ResultSet *resCloseAsk = stmt->executeQuery("SELECT closeAsk FROM " + DATABASE_NAME + "." + dataTable + " WHERE date > " + std::to_string(MACDDate));
 
 
 
     // Adding time measuring code to see how long it takes
     int prevTime = time(NULL);
-    double count = 0;
+    int count = 0;
 
     // This loops through the needed dates and calculates the MACD information
     while (resDate->next()) {
@@ -141,7 +141,7 @@ int Analysis::calcMACD(std::string result, std::string data) {
         if (date % 3600 == 0) {
             count++;
             int curTime = time(NULL);
-            std::cout << count << " hours took " << curTime - prevTime << ". Average: " << (curTime - prevTime) / count << '\n';
+            std::cout << dataTable + ": " << count << " hours took " << curTime - prevTime << ". Average: " << (curTime - prevTime) / (double)count << '\n';
         }
     }
 
