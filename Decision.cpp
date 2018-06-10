@@ -75,7 +75,7 @@ Decision::Position Decision::evalEMA() {
 
 void Decision::fillResults(int date, std::string col) {
     sql::Statement *stmt = con->createStatement();
-    sql::ResultSet *res  = stmt->executeQuery("SELECT " + col + " FROM quotesdb.MACD_" + longerTable + " WHERE date = " + std::to_string(date));
+    sql::ResultSet *res  = stmt->executeQuery("SELECT " + col + " FROM " + DATABASE_NAME + ".MACD_" + longerTable + " WHERE date = " + std::to_string(date));
 
     res->next();
     if (col == "MACD") {
@@ -91,7 +91,7 @@ void Decision::fillResults(int date, std::string col) {
 
 void Decision::fillLongPrices(int date) {
     sql::Statement *stmt = con->createStatement();
-    sql::ResultSet *res  = stmt->executeQuery("SELECT * FROM quotesdb.MACD_" + longerTable + " WHERE date = " + std::to_string(date));
+    sql::ResultSet *res  = stmt->executeQuery("SELECT * FROM " + DATABASE_NAME + ".MACD_" + longerTable + " WHERE date = " + std::to_string(date));
 
     res->next();
     for (int i = 0; i < 9; i++) {
@@ -118,7 +118,7 @@ void Decision::realityRun() {
     while (true) {
         bal = exec.getBalance();
         sql::Statement *stmt = con->createStatement();
-        sql::ResultSet *res  = stmt->executeQuery("SELECT date, closeAsk, closeBid FROM quotesdb." + table + " ORDER BY DATE DESC LIMIT 1");
+        sql::ResultSet *res  = stmt->executeQuery("SELECT date, closeAsk, closeBid FROM " + DATABASE_NAME + "." + table + " ORDER BY DATE DESC LIMIT 1");
         delete stmt;
         stmt = con->createStatement();
         res->next();
@@ -141,7 +141,7 @@ void Decision::realityRun() {
         delete res;
         delete stmt;
         stmt = con->createStatement();
-        res  = stmt->executeQuery("SELECT date, closeAsk, closeBid FROM quotesdb." + longerTable + " ORDER BY DATE DESC LIMIT 1");
+        res  = stmt->executeQuery("SELECT date, closeAsk, closeBid FROM " + DATABASE_NAME + "." + longerTable + " ORDER BY DATE DESC LIMIT 1");
         res->next();
         if (res->getInt("date") != lastHourly) {
             std::cout << "HERE" << '\n';
@@ -176,7 +176,7 @@ void Decision::realityRun() {
 
 double Decision::testDecide(Price p, Position pos) {
     sql::Statement *stmt    = con->createStatement();
-    sql::ResultSet *res     = stmt->executeQuery("SELECT date, closeAsk, closeBid FROM quotesdb." + table + " WHERE date > 1187902800");
+    sql::ResultSet *res     = stmt->executeQuery("SELECT date, closeAsk, closeBid FROM " + DATABASE_NAME + "." + table + " WHERE date > 1187902800");
     int             date    = 0;
     int             counter = 0;
     while (res->next() && counter < 1 * 365 * 1440) {
