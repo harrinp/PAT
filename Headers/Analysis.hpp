@@ -23,6 +23,9 @@ public:
     sql::Connection *con;
     int calcMACD(std::string, std::string);
 private:
+    // Stripped down for speed
+    double EMA(int, double, double);
+    // Full version with database communication
     double EMA(int, double, int, int, std::string, std::string, std::string, std::string);
     qdb::OandaAPI conn;
 
