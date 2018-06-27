@@ -9,7 +9,8 @@ printf "These packages will include MySQL, which will require some setup.\nYou c
 read -p "Press [Enter] when you are ready to continue..."
 
 
-sudo apt-get -y install mysql-server libmysqlcppconn-dev libmysqlclient-dev openssl libssl-dev libcurl4-openssl-dev libboost-all-dev make g++ git
+sudo apt-get -y install mysql-server 
+sudo apt-get -y install libmysqlcppconn-dev libmysqlclient-dev openssl libssl-dev libcurl4-openssl-dev libboost-all-dev make g++ git
 
 printf "\n\nDownloading PAT master branch\n\n"
 
