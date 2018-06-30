@@ -8,7 +8,7 @@ printf "Also make sure that this installer file is in a location where you would
 printf "These packages will include MySQL, which will require some setup.\nYou can leave the MySQL password blank, but if you choose to fill it in, remember it!\n"
 read -p "Press [Enter] when you are ready to continue..."
 
-
+sudo apt-get update
 sudo apt-get -y install mysql-server 
 sudo apt-get -y install libmysqlcppconn-dev libmysqlclient-dev openssl libssl-dev libcurl4-openssl-dev libboost-all-dev make g++ git
 
