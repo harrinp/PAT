@@ -7,14 +7,13 @@ printf "You may need to enter your computer password to install packages!\n"
 printf "Also make sure that this installer file is in a location where you would like to install and store the software!"
 printf "These packages will include MySQL, which normally requires some setup.\n Here we are setting the root password to blank, if you would like root to have a password please be sure to set it later.\n"
 
-read -p "Press [Enter] when you are ready to continue..."
+read -p "Press [Enter] when you are ready to continue..." placeholder
 
 # We are going to try doing MySQL with some options that the internet says should work.
 sudo apt-get update
-sudo debconf-set-selections <<< 'mysql-server mysql-server/'
-sudo debconf-set-selections <<< 'mysql-server mysql-server/'
-sudo apt-get -y install mysql-server
-sudo apt-get -y install libmysqlcppconn-dev libmysqlclient-dev openssl libssl-dev libcurl4-openssl-dev libboost-all-dev make g++ git
+eport DEBIAN_FRONTEND=noninteractive # This lets us run the mysql install noninteractively
+sudo -E apt-get -qq install mysql-server # -E uses the environment variable set above, -qq makes things quiet
+sudo apt-get -qq install libmysqlcppconn-dev libmysqlclient-dev openssl libssl-dev libcurl4-openssl-dev libboost-all-dev make g++ git
 
 printf "\n\nDownloading PAT master branch\n\n"
 
