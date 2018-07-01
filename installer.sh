@@ -5,11 +5,15 @@ printf "Hello $user! This program will perform setup for PAT software\n"
 printf "You may need to enter your computer password to install packages!\n"
 
 printf "Also make sure that this installer file is in a location where you would like to install and store the software!"
-printf "These packages will include MySQL, which will require some setup.\nYou can leave the MySQL password blank, but if you choose to fill it in, remember it!\n"
+printf "These packages will include MySQL, which normally requires some setup.\n Here we are setting the root password to blank, if you would like root to have a password please be sure to set it later.\n"
+
 read -p "Press [Enter] when you are ready to continue..."
 
+# We are going to try doing MySQL with some options that the internet says should work.
 sudo apt-get update
-sudo apt-get -y install mysql-server 
+sudo debconf-set-selections <<< 'mysql-server mysql-server/'
+sudo debconf-set-selections <<< 'mysql-server mysql-server/'
+sudo apt-get -y install mysql-server
 sudo apt-get -y install libmysqlcppconn-dev libmysqlclient-dev openssl libssl-dev libcurl4-openssl-dev libboost-all-dev make g++ git
 
 printf "\n\nDownloading PAT master branch\n\n"
@@ -32,7 +36,7 @@ else
 	service mysql start
 fi
 
-printf "\nMake sure to test your login using 'mysql -u root (-p {YOURPASSWROD})', including the password if you set one\n"
+printf "\nMake sure to test your login using 'mysql -u root (-p {YOURPASSWORD})', including the password if you set one\n"
 read -p "Press [Enter] when you are ready to continue..."
 
 printf "\n\nDownloading POCO libraries\n\n"
