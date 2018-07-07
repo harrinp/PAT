@@ -5,9 +5,18 @@ These directions are at least somewhat accurate for Ubuntu 16.04 and other Debia
 
 ## Installation
 
-### Getting set up with Github
+### Installer (EXPERIMENTAL)
+We have been working on an installer that should currently function for Debian based Linux systems. Keep in mind that this installer has only been tested on a Linux Mint 18.3 system, and may not work on other systems. If you would like to try the installer instead of the manual install process, do the following:
 
-1. Make a github account
+1. Create a folder for you to store your PAT files, somewhere you can find it and with a descriptive name.
+2. Open a terminal window in the folder you created.
+3. Run `curl "https://raw.githubusercontent.com/harrinp/PAT/master/installer.sh" | bash`. This will download the installer and immediately run it with the appropriate shell.
+4. Keep in mind that the installer will ask for your password, as it needs to install packages on your system. The password prompts come entirely from package management tools like apt-get.
+5. Check the steps below for MySQL, setting up the config file, and compiling PAT, as well as any troubleshooting steps you may need to do for your system.
+
+### Github Setup
+
+1. Make a github account (only necessary if you intend to contribute code)
 2. Make sure you have a directory to put the code it. Something like AlgoTrading, and then inside that a folder for the main code so you can keep everything sorted is a suggested strategy.
 3. If you do not have git, install it with `sudo apt install git`
 4. Navigate to our Github at https://github.com/harrinp/PAT.
@@ -17,7 +26,7 @@ These directions are at least somewhat accurate for Ubuntu 16.04 and other Debia
 8. `git pull origin master`
 9. Wait for the process to complete, and check out the folders for your shiny new algorithmic trading code.
 
-### Getting MySQL to go
+### MySQL Setup
 
 1. Need to do `sudo apt install mysql-server libmysqlcppconn-dev libmysqlclient-dev` This should install the client, the server and the thing that lets C++ do the thing
 2. At some point you will go through a set up process for the MySQL server. Set the password for root to whatever you like, and remember it.
@@ -81,16 +90,6 @@ CREATE TABLE `MACD_EUR_USD_H1` (
 9. Follow this with `sudo make -s install` to get the files into the directories
 10. That should work, but if you keep getting compile errors from not having some libraries, try running `sudo ldconfig` which should create any missing symbolic links. Additional troubleshooting steps for Linux Subsystem users are at the end of the installation instructions.
 
-### Compiling
-
-1. Open a terminal window where you downloaded the code
-2. To make sure things work, run "make example"
-3. If it doesn’t compile because of libraries, check to make sure you installed everything above correctly. If you did, try "make exampleU" (This activates the makes for Ubuntu so that might also be helpful).
-4. One you can get all the recipes (EXCEPT executor that is only for testing) to compile, try to run the example with "./runE.out"
-5. If you get rejected by MySQL, make sure that you have entered your password for your MySQL user
-
-From here, you should make an OANDA demo account. This will let you generate an API key, and then be able to put that in the program and start tinkering.
-
 ### Config file
 1. Navigate to the Headers folder in your installation.
 2. Put the following into a file called `Config.hpp`
@@ -102,12 +101,23 @@ From here, you should make an OANDA demo account. This will let you generate an 
 static const std::string URL = "tcp://127.0.0.1:3306";
 static const std::string USER = "root";
 static const std::string PASSWORD = "";
+static const std::string DATABASE_NAME = "quotesDB";
 // OANDA parameters
 static const std::string ACCOUNT_ID = "";
 static const std::string ACCESS_TOKEN = "";
 #endif
 ```
-3. Replace the `USER` and `PASSWORD` fields with the user and password for your MySQL user. Also, generate and access token from OANDA and fill out the `ACCESS_TOKEN` and `ACCOUNT_ID` fields for your account.
+3. Replace the `USER` and `PASSWORD` fields with the user and password for your MySQL user. Also, you will need generate and access token from your OANDA account and fill out the `ACCESS_TOKEN` and `ACCOUNT_ID` fields for your account. Change the `DATABASE_NAME` field if you decided you wanted to have a different database name during the MySQL setup.
+
+### Compiling PAT from Source
+
+1. Open a terminal window where you downloaded the code
+2. To make sure things work, run "make example"
+3. If it doesn’t compile because of libraries, check to make sure you installed everything above correctly. If you did, try "make exampleU" (This activates the makes for Ubuntu so that might also be helpful).
+4. One you can get all the recipes (EXCEPT executor that is only for testing) to compile, try to run the example with "./runE.out"
+5. If you get rejected by MySQL, make sure that you have entered your password for your MySQL user
+
+From here, you should make an OANDA demo account. This will let you generate an API key, and then be able to put that in the program and start tinkering.
 
 ## Linux Subsystem
 
@@ -147,4 +157,4 @@ Once you can get the `make example`, `make analyze`, and `make decide` commands 
 
 The first time you run the analysis code, use the command `./runA.out -i`. This signals the program to complete initialization of the tables. Any other time you want to run the analysis code, run the command `./runA.out`. This program will begin by updating the historical price data to the most current it can find on the OANDA servers. It will then begin to conduct a Moving Average Convergence Divergence (MACD) analysis. Both the download and the MACD calculations can take awhile, so you may want to let this program run overnight. Once it reaches the present day in the MACD analysis, it will periodically check for new data, download it, and analyze it.
 
-The decision makeing code can be run using the command `./runD.out`. We are currently working on changing a lot about how this code functions, so if it doesn't work, don't worry. Look for future updates to address functionality of this component.
+The decision making code can be run using the command `./runD.out`. We are currently working on changing a lot about how this code functions, so if it doesn't work, don't worry. Look for future updates to address functionality of this component. Additionally, the make for the executor program will fail if you try to run it. This is currently the expected behavior because of changes being made to the code.
