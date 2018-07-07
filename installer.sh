@@ -11,7 +11,7 @@ read -p "Press [Enter] when you are ready to continue..." placeholder -n 1
 
 sudo apt-get update
 # This lets us run the mysql install noninteractively
-eport DEBIAN_FRONTEND=noninteractive
+export DEBIAN_FRONTEND=noninteractive
 # -E uses the environment variable set above, -qq makes things quiet
 sudo -E apt-get -qq install mysql-server
 sudo apt-get -qq install libmysqlcppconn-dev libmysqlclient-dev openssl libssl-dev libcurl4-openssl-dev libboost-all-dev make g++ git
