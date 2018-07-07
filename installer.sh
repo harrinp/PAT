@@ -10,10 +10,15 @@ sleep 2s
 read -p "Press [Enter] when you are ready to continue..." placeholder -n 1
 
 sudo apt-get update
+<<<<<<< HEAD
 # This lets us run the mysql install noninteractively
 eport DEBIAN_FRONTEND=noninteractive
 # -E uses the environment variable set above, -qq makes things quiet
 sudo -E apt-get -qq install mysql-server
+=======
+export DEBIAN_FRONTEND=noninteractive # This lets us run the mysql install noninteractively
+sudo -E apt-get -qq install mysql-server # -E uses the environment variable set above, -qq makes things quiet
+>>>>>>> 049e228d80bdcaa11a8a8f6e978dde5d9ef54e2a
 sudo apt-get -qq install libmysqlcppconn-dev libmysqlclient-dev openssl libssl-dev libcurl4-openssl-dev libboost-all-dev make g++ git
 
 printf "\n\nDownloading PAT master branch\n\n"
