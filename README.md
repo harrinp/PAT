@@ -1,37 +1,37 @@
 # PAT
 Open-source trading application developed and maintained by the Purdue Algorithmic Trading Club
 
-These directions are at least somewhat accurate for Ubuntu 16.04 and other Debian based distros, as well as possibly the Windows Linux subsystem (See end of the installation instructions for special information about Linux Subsystem). apt should work for all of these packages but if apt-get makes you happy then feel free to substitute it. Also commands are in quotes because markdown is hard.
+These directions are tested to work on Ubuntu 16.04 and some other Debian based distros, as well as possibly the Windows Linux subsystem (See end of the installation instructions for special information about Linux Subsystem). The directions use apt, though if you prefer apt-get then nothing is lost. Users on Windows are encouraged to use the Linux subsystem. For Mac users, substitute brew commands for any package installation.
 
 ## Installation
 
-### Installer (EXPERIMENTAL)
+### Installer **(EXPERIMENTAL)**
 We have been working on an installer that should currently function for Debian based Linux systems. Keep in mind that this installer has only been tested on a Linux Mint 18.3 system, and may not work on other systems. If you would like to try the installer instead of the manual install process, do the following:
 
 1. Create a folder for you to store your PAT files, somewhere you can find it and with a descriptive name.
 2. Open a terminal window in the folder you created.
-3. Run `curl "https://raw.githubusercontent.com/harrinp/PAT/master/installer.sh" | bash`. This will download the installer and immediately run it with the appropriate shell.
+3. Run `curl "https://raw.githubusercontent.com/harrinp/PAT/master/installer.sh" > installer.sh && chmod +x ./installer.sh && ./installer.sh && rm installer.sh`. This will download the installer and immediately run it with the appropriate shell, removing it when it is finished.
 4. Keep in mind that the installer will ask for your password, as it needs to install packages on your system. The password prompts come entirely from package management tools like apt-get.
 5. Check the steps below for MySQL, setting up the config file, and compiling PAT, as well as any troubleshooting steps you may need to do for your system.
 
+Please let us know if you had any problems with the installer! We are trying to improve it and feedback is a key part of that process.
+
 ### Github Setup
 
-1. Make a github account (only necessary if you intend to contribute code)
-2. Make sure you have a directory to put the code it. Something like AlgoTrading, and then inside that a folder for the main code so you can keep everything sorted is a suggested strategy.
+1. Make a Github account if you intend to contribute code.
+2. Make sure you have a directory to put the code in. Within that folder, make a folder for the master branch of the code.
 3. If you do not have git, install it with `sudo apt install git`
-4. Navigate to our Github at https://github.com/harrinp/PAT.
-5. Using the green “Clone or download” button on the right, grab the url for cloning the repository.
-6. Open a terminal window in the folder for the code that you opened earlier, and type `git init`
-7. `git remote add origin {URL}`
-8. `git pull origin master`
-9. Wait for the process to complete, and check out the folders for your shiny new algorithmic trading code.
+4. Open a terminal window in the folder for the master branch that you created earlier, and type `git init`
+5. `git remote add origin https://github.com/harrinp/PAT.git`
+6. `git pull origin master`
+7. Wait for the process to complete, and check out the folders for your shiny new algorithmic trading code.
 
 ### MySQL Setup
 
-1. Need to do `sudo apt install mysql-server libmysqlcppconn-dev libmysqlclient-dev` This should install the client, the server and the thing that lets C++ do the thing
-2. At some point you will go through a set up process for the MySQL server. Set the password for root to whatever you like, and remember it.
+1. Run `sudo apt install mysql-server libmysqlcppconn-dev libmysqlclient-dev` This should install the client, the server and the libraries to interface with C++.
+2. At some point you will go through a set up process for the MySQL server. Set the password for root to whatever you like, and remember it. The current recommendation is to leave the root password blank for easier interaction with the code, however if you intend to use MySQL for other purposes you may want a password.
 3. Make sure that MySQL is started with `service mysql status`
-4. If it’s not started do `service mysql start`
+4. If it’s not started run `service mysql start`
 5. Try to login with `mysql -u root (-p {YOURPASSWORD})` Only do the password related items in parentheses if you set a password.
 6. If you can’t connect, try adding sudo to the command.
 7. If you can connect when you use sudo then you will have trouble getting the code to connect. Try these directions, adding your password if you set one:
@@ -74,25 +74,25 @@ CREATE TABLE `MACD_EUR_USD_H1` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 ```
 
-### Installing POCO
+### Compiling and Installing POCO
 
-1. This library has to be compiled from source to do what we need. Head to their website and download the latest COMPLETE version of the linux source. 1.8.1 is confirmed working, but the version shouldn’t matter much.
+1. This library has to be compiled from source to do what we need. Head to their website and download the latest COMPLETE version of the linux source. 1.9.0 is confirmed working, though the newest version should also work.
 2. Make sure you install some packages that some of POCO depends on, or it won’t compile everything. These include `openssl` `libssl-dev` `libcurl4-openssl-dev` and `libboost-all-dev`
-3. For the rest of these directions, I’m using `make` and `gmake` interchangeably, they are different but they should both work.
+3. For the rest of these directions, `make` is used rather than `gmake`. `make` is confirmed to work for this process, however if you prefer `gmake` it should also work.
 4. From there, check that you have a version of make that is at least 3.80 or newer with `make --version`
 5. Go to where you downloaded the library and do these commands BUT with some changes:
 
 ![alt text](https://github.com/harrinp/PAT/blob/master/Images/readme2.png "Compiling POCO")
 
-6. For `./configure` instead run `./configure --no-tests --no-samples` This reduces build times.
-7. For `make -s` instead run `make -j4` This reduces build times by making use of your nice multithreaded processor.
+6. For `./configure` instead run `./configure --no-tests --no-samples` This reduces build times by skipping some steps that are not typically necessary.
+7. For `make -s` instead run `make -j4` This reduces build times by using 4 workers to do the compilation.
 8. The make might take a long time. Be patient.
-9. Follow this with `sudo make -s install` to get the files into the directories
-10. That should work, but if you keep getting compile errors from not having some libraries, try running `sudo ldconfig` which should create any missing symbolic links. Additional troubleshooting steps for Linux Subsystem users are at the end of the installation instructions.
+9. Follow this with `sudo make -s install` to get the files into the appropriate directories.
+10. That should work, but if you keep getting compile errors from not having some libraries, try running `sudo ldconfig` which should create any missing symbolic links. Additional troubleshooting steps for Linux Subsystem users are at the end of the installation instructions, as the subsystem can be a bit tricky for libraries.
 
 ### Config file
 1. Navigate to the Headers folder in your installation.
-2. Put the following into a file called `Config.hpp`
+2. Create a file called `Config.hpp` and paste the following into it:
 ``` C++
 #ifndef CONFIG_HPP
 #define CONFIG_HPP
@@ -107,13 +107,13 @@ static const std::string ACCOUNT_ID = "";
 static const std::string ACCESS_TOKEN = "";
 #endif
 ```
-3. Replace the `USER` and `PASSWORD` fields with the user and password for your MySQL user. Also, you will need generate and access token from your OANDA account and fill out the `ACCESS_TOKEN` and `ACCOUNT_ID` fields for your account. Change the `DATABASE_NAME` field if you decided you wanted to have a different database name during the MySQL setup.
+3. Fill in the `USER` and `PASSWORD` fields with the user and password for your MySQL user (default is `root` and blank password). Also, to run the program against an account you will need generate an access token from an OANDA account and fill out the `ACCESS_TOKEN` and `ACCOUNT_ID` fields for your account. Change the `DATABASE_NAME` field if you decided you wanted to have a different database name during the MySQL setup.
 
 ### Compiling PAT from Source
 
 1. Open a terminal window where you downloaded the code
 2. To make sure things work, run "make example"
-3. If it doesn’t compile because of libraries, check to make sure you installed everything above correctly. If you did, try "make exampleU" (This activates the makes for Ubuntu so that might also be helpful).
+3. If it fails to compile because of libraries, check to make sure you installed everything above correctly. If you did, try "make exampleU" (This activates the makes for Debian based systems such as Ubuntu, which can help).
 4. One you can get all the recipes (EXCEPT executor that is only for testing) to compile, try to run the example with "./runE.out"
 5. If you get rejected by MySQL, make sure that you have entered your password for your MySQL user
 
