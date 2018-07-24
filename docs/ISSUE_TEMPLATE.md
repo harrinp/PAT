@@ -1,5 +1,6 @@
+<!--- NOTE: If you update me, update me on the wiki too! --->
 Your issue may already be reported!
-Please search on the [issue tracker](https://github.com/harrinp/PAT/issues) before creating one.
+Please search on the [Issue tracker](https://github.com/harrinp/PAT/issues) before creating one.
 
 ## Expected Behavior
 - If you're describing a bug, tell us what should happen.

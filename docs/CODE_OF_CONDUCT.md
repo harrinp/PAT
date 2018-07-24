@@ -1,3 +1,4 @@
+<!--- NOTE: If you update me, update me on the wiki too! --->
 # Contributor Covenant Code of Conduct
 
 ## Our Pledge
