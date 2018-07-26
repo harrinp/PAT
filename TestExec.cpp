@@ -1,6 +1,6 @@
 #include "Headers/TestExec.hpp"
 
-BackExecutor::BackExecutor(double money, std::string table, double leverage) : USD(money), table(table), leverage(leverage), numTrades(0) {
+BackExecutor::BackExecutor(double money, std::string table, double leverage) : USD(money), leverage(leverage), numTrades(0), table(table) {
     //driver = get_driver_instance();
     //con = driver->connect("tcp://127.0.0.1:3306", "root", "");
     counter = 0;
@@ -12,7 +12,7 @@ BackExecutor::BackExecutor(double money, std::string table, double leverage) : U
  */
 void BackExecutor::reportTrades() {
     //std::cout << oldTrades[0].initialPrice.date << '\n';
-    for (int i = 0; i < oldTrades.size(); i++) {
+    for (int i = 0; i < (int)oldTrades.size(); i++) {
         std::cout << (oldTrades[i].type == LONG ? "LONG," : "SHORT,") <<
             oldTrades[i].initialPrice.date << "," <<
             oldTrades[i].closeDate << "," <<
@@ -27,7 +27,7 @@ void BackExecutor::reportTrades() {
 }
 
 void BackExecutor::closeAll(Price p) {
-    for (int i = 0; i < trades.size(); i++) {
+    for (int i = 0; i < (int)trades.size(); i++) {
         USD += trades[i].close(p);
         oldTrades.push_back(trades[i]);
         trades.erase(trades.begin() + i);
@@ -42,7 +42,7 @@ void BackExecutor::closeAll(Price p) {
 double BackExecutor::totalProfit(Price p) {
     double profit = 0.0;
 
-    for (int i = 0; i < trades.size(); i++) {
+    for (int i = 0; i < (int)trades.size(); i++) {
         profit += trades[i].calcProfit(p);
     }
     return profit;
@@ -72,6 +72,5 @@ Price::Price(std::string table, int date) {
     res->next();
     bid  = res->getDouble("closeBid");
     ask  = res->getDouble("closeAsk");
-    date = date;
     delete con;
 }

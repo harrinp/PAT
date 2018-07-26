@@ -1,5 +1,5 @@
-data = csvread('outputWithOrders.csv',2,1)
-data2 = csvread('M1graphMACD.csv');
+data = csvread('testOutput.csv',2,1)
+%data2 = csvread('M1graphMACD.csv');
 x = length(data(:,2));
 subplot(4,1,1);
 plot(data(1:x, 2), data(1:x,9));

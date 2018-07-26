@@ -23,9 +23,9 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
-Analysis::Analysis() : conn("practice") {
+Analysis::Analysis() : conn("practice") { // conn is the db connection through the quotesDB library
     driver = get_driver_instance();
-    con    = driver->connect(URL, USER, PASSWORD);
+    con    = driver->connect(URL, USER, PASSWORD);      // con is the pure mysql connection
     //qdb::OandaAPI ;
 }
 
@@ -236,9 +236,7 @@ void Analysis::initializeMACDTable(std::string initialize, std::string data) {
     prep_stmt->setDouble(2, ave);
     prep_stmt->execute();
 
-
      //  getting the next 13 EMA12 which are normal EMAs
-
 
     double EMA12 = 0;
 
@@ -305,12 +303,10 @@ void Analysis::initializeMACDTable(std::string initialize, std::string data) {
 
     prep_stmt = con->prepareStatement("INSERT INTO " + DATABASE_NAME + "." + initialize + "(date, EMA26, EMA12, MACD, sign, result) VALUES(?, ?, ?, ?, ?, ?)");
 
-
     prep_stmt->setDouble(3, EMA12);
     prep_stmt->setDouble(2, EMA26);
     prep_stmt->setInt(1, res->getInt("date"));
     prep_stmt->setDouble(4, EMA12 - EMA26);
-
 
     double sig = 0.0;
     count = 0.0;

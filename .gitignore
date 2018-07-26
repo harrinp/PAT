@@ -40,3 +40,5 @@
 Config.hpp
 
 Extras/testOutput\.csv
+
+\.ycm_extra_conf\.py
