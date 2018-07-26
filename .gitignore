@@ -33,4 +33,10 @@
 
 .DS_Store
 
+*.srctrlbm
+*.srctrldb
+*.srctrlprj
+
 Config.hpp
+
+Extras/testOutput\.csv

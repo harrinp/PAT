@@ -5,6 +5,7 @@
 #include "TestExec.hpp"
 #include "Executor.hpp"
 #include "Config.hpp"
+#include "FullBar.hpp"
 
 class Decision {
 public:
@@ -52,9 +53,11 @@ private:
 
 class Decider {
 public:
-    Decider(bool, unsigned int);
 
-    enum Pos { LONG, SHORT, NOTHING };
+    Decider(bool, unsigned int);
+    virtual ~Decider() = default;
+
+    enum Pos { LONGING, SHORTING, NOTHING };
 
     bool testing;
 
@@ -64,8 +67,12 @@ public:
     Pos evalEMA();
     void fillResults(int, std::string);
     void fillLongPrices(int);
+    //These use a FullBar instead of their own sql calls for speed
+    Pos decide(FullBar *);
+    void fillResults(FullBar *, std::string);
+    void fillLongPrices(FullBar *);
 
-    virtual void run();
+    virtual void run() = 0;
 
 protected:
     unsigned int time;
@@ -92,16 +99,19 @@ protected:
 
 class Tester: public Decider {
 public:
-
+    //virtual ~Tester(){};
     Tester(std::string, std::string, double, double);
+    void run();
 
 protected:
     BackExecutor back;
 };
 
-class Decisioner: public Decider {
+class Runner: public Decider {
 public:
-    Decisioner(std::string, std::string, double, double);
+    //virtual ~Decisioner(){};
+    Runner(std::string, std::string, double, double);
+    void run();
 protected:
     Executor exec;
 };

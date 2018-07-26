@@ -27,10 +27,8 @@ std::vector<Trade> Trade::translateTrades(json response){
     std::vector<Trade> trades;
 
     json j = response.at("trades").get<json>();
-
     for (auto& element : j) {
         trades.push_back(_convertTrade(element));
-
         std::cout << trades.back().tradeAsString() << '\n';
     }
     return trades;

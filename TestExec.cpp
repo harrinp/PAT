@@ -1,6 +1,6 @@
 #include "Headers/TestExec.hpp"
 
-BackExecutor::BackExecutor(double money, std::string table, double leverage) : USD(money), table(table), leverage(leverage) {
+BackExecutor::BackExecutor(double money, std::string table, double leverage) : USD(money), table(table), leverage(leverage), numTrades(0) {
     //driver = get_driver_instance();
     //con = driver->connect("tcp://127.0.0.1:3306", "root", "");
     counter = 0;
@@ -50,7 +50,7 @@ double BackExecutor::totalProfit(Price p) {
 
 void BackExecutor::makeTrade(TradeType type, int units, Price price) {
     Trade t = Trade(type, units, price, leverage, table);
-
+    numTrades++;
     trades.push_back(t);
     //double p = type == LONG ? price.ask : price.bid;
     USD -= t.marginUsed;

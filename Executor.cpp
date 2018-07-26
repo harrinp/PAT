@@ -128,7 +128,6 @@ double Executor::getBalance(){
     x = oanda.request(std::string("/v3/accounts/") + ACCOUNT_ID + std::string("/summary"));
     json j = json::parse(x);
     j = j.at("account").get<json>();
-    //std::cout << j.dump(4) << '\n';
     double y = std::stod(j.at("balance").get<std::string>());
     return y;
 }
@@ -138,6 +137,5 @@ json Executor::getTradesJson() {
     qdb::OandaAPI oanda = qdb::OandaAPI("practice");
     x = oanda.request(std::string("/v3/accounts/") + ACCOUNT_ID + std::string("/openTrades"));
     json j = json::parse(x);
-    //std::cout << j.dump(4) << std::endl;
     return j;
 }
