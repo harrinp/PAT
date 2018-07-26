@@ -5,6 +5,7 @@
 #include "Headers/QuotesDB.hpp"
 #include "Headers/Config.hpp"
 
+
 int main()
 {
    // creating a connection to Oanda server
