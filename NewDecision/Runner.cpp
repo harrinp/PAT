@@ -33,7 +33,7 @@ void Runner::run() {
             std::cout << "No trades" << '\n';
         }
 
-        for (int i = 0; i < exec.trades.size(); i++) {
+        for (int i = 0; i < (int)exec.trades.size(); i++) {
             if (exec.trades[i].profit < -1 *stopLoss * exec.trades[i].units * p.ask || exec.trades[i].profit > takeProfit * exec.trades[i].units * p.ask) {
                 if (exec.trades[i].type == SHORT) {
                     std::cerr << "ending short" << '\n';

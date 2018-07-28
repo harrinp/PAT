@@ -9,6 +9,18 @@ Tester::Tester(std::string table, std::string longerTable, double takeProfit, do
     this->longerTable = longerTable;
 }
 
+void Tester::closeProfitableOrNotTrades(Price p){
+     for (int i = 0; i < (int)back.trades.size(); i++) {
+            if (
+                back.trades[i].calcProfit(p) < -1 * stopLoss * back.trades[i].units * p.ask || 
+                back.trades[i].calcProfit(p) > takeProfit * back.trades[i].units * p.ask) {
+                back.closeTrade(p, i);
+            }
+        }
+
+
+}
+
 void Tester::run() {
 
     Price p = Price(0,0,0);
@@ -23,15 +35,10 @@ void Tester::run() {
         if (counter % 1440 == 0) {
             std::cout << "day " << counter / 1440 << " --- Profit: " << back.USD << "\n";
         }
-        date = res->getInt("date");
+date = res->getInt("date");
         p = Price(res->getInt("date"), res->getDouble("closeAsk"), res->getDouble("closeBid"));
 
-        for (int i = 0; i < back.trades.size(); i++) {
-            if (back.trades[i].calcProfit(p) < -1 * stopLoss * back.trades[i].units * p.ask || back.trades[i].calcProfit(p) > takeProfit * back.trades[i].units * p.ask) {
-                back.closeTrade(p, i);
-                //std::cout << "CLOSING: " + back.trades[i].tradeAsString() << '\n';
-            }
-        }
+        closeProfitableOrNotTrades(p);
 
         if (date % 3600 == 0) {
             fillLongPrices(date);

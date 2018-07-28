@@ -13,6 +13,10 @@ using namespace Poco;
 //     return 0;
 // }
 
+/*
+ *      called internally by default
+ *      can be called externally if the two convenience functions (buy() and sell()) are not preferred
+ */
 int Executor::buyOrSell(int units, std::string instrument) {
     json j = {
         { "order",        {
@@ -34,10 +38,17 @@ int Executor::buyOrSell(int units, std::string instrument) {
     return 1;
 }
 
+/*
+ *      Constructor
+ */
 Executor::Executor() {
 
 }
 
+/*
+ *      This function is passed through curl and handles the writing of the data into the string
+ *      No JSON parsing is done in this function
+ */
 size_t Executor::responseWriter(void *contents, size_t size, size_t nmemb, std::string *s) {
     size_t newLength = size * nmemb;
     size_t oldLength = s->size();
@@ -46,7 +57,7 @@ size_t Executor::responseWriter(void *contents, size_t size, size_t nmemb, std::
     {
         s->resize(oldLength + newLength);
     }
-    catch (std::bad_alloc&e)
+    catch (std::bad_alloc &e)
     {
         //handle memory problem
         printf("shit\n");
@@ -56,6 +67,10 @@ size_t Executor::responseWriter(void *contents, size_t size, size_t nmemb, std::
     return size * nmemb;
 }
 
+/*
+ *      Simple curl post request
+ *      uses above responseWriter()
+ */
 json Executor::post(std::string path, json j, std::vector <std::string> v) {
     std::string body = j.dump();
     CURL *      curl = curl_easy_init();
@@ -73,8 +88,8 @@ json Executor::post(std::string path, json j, std::vector <std::string> v) {
     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, body.c_str());
 
     //Sets up the writing function
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, responseWriter);
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &s);
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, responseWriter);   // Our function defined above will be called to handle the response
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &s);                  
 
     // Post method
     CURLcode ret = curl_easy_perform(curl);
@@ -86,21 +101,28 @@ json Executor::post(std::string path, json j, std::vector <std::string> v) {
         std::cout << ret << '\n';
     }
 
-    //std::cout <<  json::parse(s).dump(4) << '\n';
-
     return json::parse(s);
 }
 
+/*
+ *      Convenience wrapper for buyOrSell()
+ */
 bool Executor::buy(int units, std::string pair) {
-    Executor::buyOrSell(units, "EUR_USD");
+    Executor::buyOrSell(units, pair);
     return 0;
 }
 
+/*
+ *      Convenience wrapper for buyOrSell()
+ */
 bool Executor::sell(int units, std::string pair) {
-    Executor::buyOrSell(-1 * units, "EUR_USD");
+    Executor::buyOrSell(-1 * units, pair);
     return 0;
 }
 
+/*
+ *      Testing function not to be used at run time
+ */
 void Executor::test() {
     qdb::OandaAPI conn("practice");
     std::string   x("EUR_USD_D");
@@ -113,6 +135,12 @@ void Executor::test() {
     std::cout << j.dump(4) << std::endl;
 }
 
+/*
+ *      Returns total profit from current trades
+ *      Caller must update trades array BEFORE calling
+ *      This function does not update trades array
+ *      Trades array can be updated using the functions in the Trade class
+ */
 double Executor::getProfit() {
     double profit = 0;
 
@@ -122,6 +150,9 @@ double Executor::getProfit() {
     return profit;
 }
 
+/*
+ *      TODO: Switch this to curl
+ */
 double Executor::getBalance(){
     std::string x;
     qdb::OandaAPI oanda = qdb::OandaAPI("practice");
@@ -132,6 +163,9 @@ double Executor::getBalance(){
     return y;
 }
 
+/*
+ *      TODO: Switch this to curl
+ */
 json Executor::getTradesJson() {
     std::string x;
     qdb::OandaAPI oanda = qdb::OandaAPI("practice");

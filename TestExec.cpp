@@ -1,5 +1,19 @@
 #include "Headers/TestExec.hpp"
 
+/*      
+ *      This is the 'broker' that the tester communicates with
+ *      This class holds the current trades and calculates profits
+ *      This class provides seperation between strategy and implementation
+ */
+
+
+/*
+ *      Constructor
+ *
+ *      leverage  : amount we can multiply our trade by
+ *      USD/Money : total money starting with
+ *      Table     : ex: EUR_USD, USD_CAD
+ */
 BackExecutor::BackExecutor(double money, std::string table, double leverage) : USD(money), leverage(leverage), numTrades(0), table(table) {
     //driver = get_driver_instance();
     //con = driver->connect("tcp://127.0.0.1:3306", "root", "");
@@ -7,8 +21,11 @@ BackExecutor::BackExecutor(double money, std::string table, double leverage) : U
     margin  = 0;
 }
 
+
 /*
- *   To be called after all trades have been closed. Prints a line by line print out of trades
+ *   To be called after all trades have been closed. 
+ *   Prints a line by line print out of trades
+ *   Output is in .csv format so it can be piped into a file for processing
  */
 void BackExecutor::reportTrades() {
     //std::cout << oldTrades[0].initialPrice.date << '\n';
@@ -26,6 +43,9 @@ void BackExecutor::reportTrades() {
     }
 }
 
+/*
+ *      Closes all open trades
+ */
 void BackExecutor::closeAll(Price p) {
     for (int i = 0; i < (int)trades.size(); i++) {
         USD += trades[i].close(p);
@@ -48,6 +68,11 @@ double BackExecutor::totalProfit(Price p) {
     return profit;
 }
 
+/*
+ *      Creates a trade for the given amount of units and at the current price object
+ *
+ *      Relies on the caller to provide the correct price object, as this is how time is told
+ */
 void BackExecutor::makeTrade(TradeType type, int units, Price price) {
     Trade t = Trade(type, units, price, leverage, table);
     numTrades++;
@@ -56,21 +81,15 @@ void BackExecutor::makeTrade(TradeType type, int units, Price price) {
     USD -= t.marginUsed;
 }
 
+/*
+ *      Closes a trade and moves it to the old trades array
+ *
+ *      Adds the profit and margin amount spent back into USD
+ */
 void BackExecutor::closeTrade(Price p, int index) {
     USD += trades[index].close(p);
     oldTrades.push_back(trades[index]);
     trades.erase(trades.begin() + index);
-    oldTrades.back().totalValueAtClose = USD + totalProfit(p);
+    oldTrades.back().totalValueAtClose = USD;
 }
 
-Price::Price(std::string table, int date) {
-    sql::Driver *    driver = get_driver_instance();
-    sql::Connection *con    = driver->connect("tcp://127.0.0.1:3306", "root", "");
-    sql::Statement * stmt   = con->createStatement();
-    std::string      query  = "SELECT * FROM quotesdb." + table + " WHERE  date = " + std::to_string(date);
-    sql::ResultSet * res    = stmt->executeQuery(query);
-    res->next();
-    bid  = res->getDouble("closeBid");
-    ask  = res->getDouble("closeAsk");
-    delete con;
-}

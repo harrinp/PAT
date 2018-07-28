@@ -102,6 +102,7 @@ public:
     //virtual ~Tester(){};
     Tester(std::string, std::string, double, double);
     void run();
+    void closeProfitableOrNotTrades(Price);
 
 protected:
     BackExecutor back;
