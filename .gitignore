@@ -31,4 +31,26 @@
 *.out
 *.app
 
+.DS_Store
+
+*.srctrlbm
+*.srctrldb
+*.srctrlprj
+
 Config.hpp
+
+# SQLite Databases
+*.db
+*.db-journal
+
+\.ycm_extra_conf\.py
+
+Extras/testOutput\.csv
+
+Extras/testOutput\.csv
+
+\.ycm_extra_conf\.py
+
+\.Executor\.cpp\.swp
+
+*.swp

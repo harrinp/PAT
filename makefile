@@ -1,9 +1,9 @@
 COMPILER = g++
-CCFLAGS1 = -lPocoNet -lPocoNetSSL -lPocoFoundation -lPocoJSON -lmysqlcppconn -lssl -lcrypto -I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib -lssl -lcrypto -I/usr/include/cppconn -std=c++11 -lcurl -I./Headers
-CCFLAGS2 = -lPocoNet -lPocoNetSSL -lPocoFoundation -lPocoJSON -lmysqlcppconn -lssl -lcrypto -I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib -lssl -lcrypto -std=c++11 -lcurl
+CCFLAGS1 = -lPocoNet -lPocoNetSSL -lPocoFoundation -lPocoJSON -lmysqlcppconn -lssl -lcrypto -I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib -lssl -lcrypto -I/usr/include/cppconn -std=c++11 -lcurl -I./Headers -lsqlite3
+CCFLAGS2 = -lPocoNet -lPocoNetSSL -lPocoFoundation -lPocoJSON -lmysqlcppconn -lssl -lcrypto -I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib -lssl -lcrypto -std=c++11 -lcurl -lsqlite3
 
 decide: Decision.cpp TestExec.cpp
-	${COMPILER} ${CCFLAGS2} Decision.cpp TestExec.cpp Executor.cpp Trade.cpp -o runD.out
+	${COMPILER} ${CCFLAGS2} NewDecision/Decider.cpp NewDecision/Tester.cpp NewDecision/Runner.cpp TestExec.cpp Executor.cpp Trade.cpp -o runD.out
 analyze: Analysis.cpp
 	${COMPILER} ${CCFLAGS2} Analysis.cpp -o runA.out
 execute: Executor.cpp

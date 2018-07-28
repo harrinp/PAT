@@ -1,10 +1,10 @@
 #include "Headers/Decision.hpp"
 
 int main(int argc, char *argv[]) {
-    Decision d = Decision(false, "EUR_USD_M1", "EUR_USD_H1", .007, .049);
+    Decision d = Decision(false, "EUR_USD_M1", "EUR_USD_H1", .0007, .0049);
 
     if (argc > 1 && strcmp(argv[1], "-t") == 0) {
-        Decision d = Decision(true, "EUR_USD_M1", "EUR_USD_H1", .007, .049);
+        Decision d = Decision(true, "EUR_USD_M1", "EUR_USD_H1", .0007, .0049);
     }
 
     d.decide();
@@ -12,8 +12,8 @@ int main(int argc, char *argv[]) {
 }
 
 Decision::Decision(bool isTesting, std::string table, std::string longerTable) :
-    back(6000.0, table, 50.0),
     exec(),
+    back(6000.0, table, 50.0),
     testing(isTesting),
     table(table),
     longerTable(longerTable) {
@@ -128,7 +128,7 @@ void Decision::realityRun() {
         exec.trades = Trade::translateTrades(j);
 
         for (int i = 0; i < exec.trades.size(); i++) {
-            if (exec.trades[i].profit < -1 *stopLoss *exec.trades[i].units *p.ask || exec.trades[i].profit> takeProfit * exec.trades[i].units * p.ask) {
+            if (exec.trades[i].profit <-1 *stopLoss *exec.trades[i].units *p.ask || exec.trades[i].profit> takeProfit * exec.trades[i].units * p.ask) {
                 if (exec.trades[i].type == SHORT) {
                     std::cerr << "ending short" << '\n';
                     exec.buy(exec.trades[i].units, "EUR_USD");
@@ -164,7 +164,10 @@ void Decision::realityRun() {
             }
         }
 
-        std::cerr << "SLEEPING..." << '\n';
+        auto t = std::time(0);
+
+        std::cout << "Current time: " << t << '\n';
+        std::cout << "SLEEPING..." << '\n';
         usleep(30000000); // 30 seconds
         delete res;
         delete stmt;

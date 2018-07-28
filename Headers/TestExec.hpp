@@ -19,6 +19,7 @@ public:
     int counter;
     double margin;
     double leverage;
+    int numTrades;
 
     BackExecutor(double, std::string, double);
     void closeAll(Price);

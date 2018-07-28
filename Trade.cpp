@@ -1,6 +1,9 @@
 #include "Headers/Trade.hpp"
 //#include <string>
 
+/*
+ *      converts json from oanda into a single Trade object     
+ */
 Trade _convertTrade(json j){
     TradeType type = LONG;
     //std::cout << "Current units:" << '\n';
@@ -22,20 +25,27 @@ Trade _convertTrade(json j){
     return t;
 }
 
+
+/*
+ *      Creates an array of Trade objects using a response from the oanda server
+ *      Takes the FULL json response from the executor, not just the `at("trades")` part
+ *      Calls _convertTrade at least 1 time to do this
+ */
 std::vector<Trade> Trade::translateTrades(json response){
     std::cerr << "Translating trades:" << '\n';
     std::vector<Trade> trades;
 
     json j = response.at("trades").get<json>();
-
     for (auto& element : j) {
         trades.push_back(_convertTrade(element));
-
         std::cout << trades.back().tradeAsString() << '\n';
     }
     return trades;
 }
 
+/*
+ *      Printable form of a Trade object's information
+ */
 std::string Trade::tradeAsString(){
     std::string s = "Trade : ";
     s.append(type == LONG ? "LONG\n" : "SHORT\n");
@@ -49,10 +59,14 @@ std::string Trade::tradeAsString(){
     return s;
 }
 
-
+/*
+ *      Constructor for a trade
+ *      units      : number of base currency being traded
+ *      Instrument : Synonym for table, ex: "EUR_USD" 
+ */
 Trade::Trade(TradeType type, int units, Price price, double leverage, std::string instrument) : type(type), units(units), initialPrice(price), leverage(leverage), instrument(instrument), finalPrice(Price(0, 0.0, 0.0)) {
     open = true;
-    type == LONG ? marginUsed = units * price.ask / leverage : units * price.bid / leverage;
+    type == LONG ? marginUsed = units * price.ask / leverage : marginUsed = units * price.bid / leverage;
 }
 
 /*
@@ -74,6 +88,10 @@ double Trade::calcProfit(Price price) {
     return profit;
 }
 
+/*
+ *      Close this trade
+ *      returns profit plus the amount spent on the trade
+ */
 double Trade::close(Price p) {
     double useMe = calcProfit(p);
     open      = false;
@@ -81,5 +99,23 @@ double Trade::close(Price p) {
     return useMe + marginUsed;
 }
 
-Price::Price(int date, double ask, double bid) : date(date), bid(bid), ask(ask) {
+/*
+ *      Constructor for a price object
+ *
+ *      Trade objects have initialPrice and finalPrice objects to calculate profit 
+ */
+Price::Price(int date, double ask, double bid) : bid(bid), ask(ask), date(date){
+}
+
+Price::Price(std::string table, int date) {
+    sql::Driver *    driver = get_driver_instance();
+    sql::Connection *con    = driver->connect("tcp://127.0.0.1:3306", "root", "");
+    sql::Statement * stmt   = con->createStatement();
+    std::string      query  = "SELECT * FROM quotesdb." + table + " WHERE  date = " + std::to_string(date);
+    sql::ResultSet * res    = stmt->executeQuery(query);
+    res->next();
+    bid  = res->getDouble("closeBid");
+    ask  = res->getDouble("closeAsk");
+    delete con;
+    delete res;
 }
