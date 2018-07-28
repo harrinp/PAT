@@ -47,12 +47,12 @@ date = res->getInt("date");
             //pos = evalEMA();
             pos = evalMACD();
             switch (pos) {
-            case LONGING:
+            case SHORTING:
                 //back.closeAll(p);
                 back.makeTrade(SHORT, (int)(0.01 * back.USD * 50), p);
                 break;
 
-            case SHORTING:
+            case LONGING:
                 //back.closeAll(p);
                 back.makeTrade(LONG, (int)(0.01 * back.USD * 50), p);
                 break;

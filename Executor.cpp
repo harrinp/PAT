@@ -5,13 +5,14 @@
 using namespace Poco::Net;
 using namespace Poco;
 
-// int main(int argc, char const *argv[]) {
-//     Executor e;
-//     json j = e.getTradesJson();
-//     std::vector<Trade> trades = Trade::translateTrades(j);
-//
-//     return 0;
-// }
+int main(int argc, char const *argv[]) {
+    Executor e;
+    json j = e.getTradesJson();//e.get(std::string("/v3/accounts/") + ACCOUNT_ID + std::string("/summary"));
+    //std::vector<Trade> trades = Trade::translateTrades(j);
+    std::cout << j.dump(4) << std::endl;
+    std::cout << e.getBalance() << std::endl;
+    return 0;
+}
 
 /*
  *      called internally by default
@@ -100,8 +101,43 @@ json Executor::post(std::string path, json j, std::vector <std::string> v) {
                 curl_easy_strerror(ret));
         std::cout << ret << '\n';
     }
-
+    curl_easy_cleanup(curl);
     return json::parse(s);
+}
+
+/*
+ *      Wrapper of cURL get for oanda api
+ *      Pass your path (the part after "oanda.com")
+ *      returns json
+ */
+json Executor::get(std::string path){
+    CURL *      curl = curl_easy_init();
+    std::string s;  // Used by writing function
+
+    curl_easy_setopt(curl, CURLOPT_URL, std::string("https://api-fxpractice.oanda.com" + path).c_str());
+
+    struct curl_slist *headers = NULL;
+    headers = curl_slist_append(headers, "Accept-Datetime-Format: UNIX");
+    headers = curl_slist_append(headers, std::string("Authorization: Bearer " + ACCESS_TOKEN).c_str());
+
+    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+
+    //Sets up the writing function
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, responseWriter);   // Our function defined above will be called to handle the response
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &s);                  
+
+    // Post method
+    CURLcode ret = curl_easy_perform(curl);
+
+    // check for error during post
+    if (ret != CURLE_OK) {
+        fprintf(stderr, "curl_easy_perform() failed: %s\n",
+                curl_easy_strerror(ret));
+        std::cout << ret << '\n';
+    }
+    curl_easy_cleanup(curl);
+    return json::parse(s);
+
 }
 
 /*
@@ -118,21 +154,6 @@ bool Executor::buy(int units, std::string pair) {
 bool Executor::sell(int units, std::string pair) {
     Executor::buyOrSell(-1 * units, pair);
     return 0;
-}
-
-/*
- *      Testing function not to be used at run time
- */
-void Executor::test() {
-    qdb::OandaAPI conn("practice");
-    std::string   x("EUR_USD_D");
-    std::string   endpoint("/v3/accounts/" + ACCOUNT_ID + "/instruments");
-    //std::cout << conn.request(endpoint) << std::endl;
-
-    json j;
-
-    j = json::parse(conn.request(endpoint));
-    std::cout << j.dump(4) << std::endl;
 }
 
 /*
@@ -154,10 +175,7 @@ double Executor::getProfit() {
  *      TODO: Switch this to curl
  */
 double Executor::getBalance(){
-    std::string x;
-    qdb::OandaAPI oanda = qdb::OandaAPI("practice");
-    x = oanda.request(std::string("/v3/accounts/") + ACCOUNT_ID + std::string("/summary"));
-    json j = json::parse(x);
+    json j = get(std::string("/v3/accounts/") + ACCOUNT_ID + std::string("/summary"));
     j = j.at("account").get<json>();
     double y = std::stod(j.at("balance").get<std::string>());
     return y;
@@ -167,9 +185,34 @@ double Executor::getBalance(){
  *      TODO: Switch this to curl
  */
 json Executor::getTradesJson() {
-    std::string x;
-    qdb::OandaAPI oanda = qdb::OandaAPI("practice");
-    x = oanda.request(std::string("/v3/accounts/") + ACCOUNT_ID + std::string("/openTrades"));
-    json j = json::parse(x);
+    json j = get(std::string("/v3/accounts/") + ACCOUNT_ID + std::string("/openTrades"));
     return j;
 }
+
+json Executor::getTradesJsonCurl(){
+
+}
+
+
+
+/*
+ *      Testing function not to be used at run time
+ */
+void Executor::test() {
+    qdb::OandaAPI conn("practice");
+    std::string   x("EUR_USD_D");
+    std::string   endpoint("/v3/accounts/" + ACCOUNT_ID + "/instruments");
+    //std::cout << conn.request(endpoint) << std::endl;
+
+    json j;
+
+    j = json::parse(conn.request(endpoint));
+    std::cout << j.dump(4) << std::endl;
+}
+
+
+
+
+
+
+

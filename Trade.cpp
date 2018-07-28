@@ -28,7 +28,7 @@ Trade _convertTrade(json j){
 
 /*
  *      Creates an array of Trade objects using a response from the oanda server
- *
+ *      Takes the FULL json response from the executor, not just the `at("trades")` part
  *      Calls _convertTrade at least 1 time to do this
  */
 std::vector<Trade> Trade::translateTrades(json response){
