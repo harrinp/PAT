@@ -110,7 +110,7 @@ void DataBase::create_table(const std::string& tab_name)
 // write to table in database appending vector of Bars starting from position start in vector
 void DataBase::write_table(const std::string& tab_name, const std::vector<Bar>& data, int start)
 {
-  
+
   sqlite3_stmt *ppStmt;
   int bufferSize = 256;
   int rc;
@@ -124,7 +124,7 @@ void DataBase::write_table(const std::string& tab_name, const std::vector<Bar>& 
   }
   rc = sqlite3_exec(db, "BEGIN TRANSACTION", NULL, 0, NULL);
 
-  // There's too many things in here I should probably make a better way to error check
+  // There's too many things in here I should probably make a better way to error check, or just give up
   for (int i = start; i < data.size(); ++i)
   {
 
