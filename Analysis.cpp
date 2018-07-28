@@ -55,8 +55,120 @@ void Analysis::analyze() {
     }
 }
 
-int Analysis::calcMACD(std::string resultTable, std::string dataTable) {
-//    std::cout << "RUNNING" << '\n';
+int Analysis::calcMACD(std::string resultTable, std::string dataTable)
+{
+
+    int rc;
+    sqlite3_stmt *resDate;
+    sqlite3_stmt *resEMA;
+    sqlite3_stmt *resCloseAsk;
+    sqlite3_stmt *insert;
+
+    rc = sqlite3_prepare_v2(db, ("SELECT date FROM " + resultTable + " ORDER BY date DESC LIMIT 1").c_str(), -1, &resDate, 0);
+    if (rc)
+    {
+      fprintf(stderr, "Database error: %s\n", sqlite3_errmsg(db));
+    }
+
+    sqlite3_step(resDate);
+    int MACDDate = sqlite3_column_int(resDate, 0);
+
+    // QUESTION Should this have an enforced order?
+    rc = sqlite3_prepare_v2(db, ("SELECT date FROM " + dataTable + " WHERE date > " + std::to_string(MACDDate)).c_str(), -1, &resDate, 0);
+    if (rc)
+    {
+      fprintf(stderr, "Database error: %s\n", sqlite3_errmsg(db));
+    }
+    rc = sqlite3_prepare_v2(db, ("INSERT INTO " + resultTable + " (date, EMA26, EMA12, MACD, sign, result) VALUES(?, ?, ?, ?, ?, ?)").c_str(), -1, &insert, 0);
+    if (rc)
+    {
+      fprintf(stderr, "Database error: %s\n", sqlite3_errmsg(db));
+    }
+
+    double EMA12    = 0.0;
+    double EMA26    = 0.0;
+    double sign     = 0.0;
+    int    prevDate = MACDDate;
+
+    rc = sqlite3_prepare_v2(db, ("SELECT * FROM " + resultTable + " WHERE date = " + std::to_string(MACDDate)).c_str(), -1, &resEMA, 0);
+    if (rc)
+    {
+      fprintf(stderr, "Database error: %s\n", sqlite3_errmsg(db));
+    }
+    sqlite3_step(resEMA);
+    double prevEMA12 = sqlite3_column_double(resEMA, 2);
+    double prevEMA26 = sqlite3_column_double(resEMA, 1);
+    double prevSign = sqlite3_column_double(resEMA, 4);
+
+    // QUESTION Should this have an enforced order?
+    rc = sqlite3_prepare_v2(db, ("SELECT closeAsk FROM " + dataTable + " WHERE date > " + std::to_string(MACDDate)).c_str(), -1, &resCloseAsk, 0);
+    if (rc)
+    {
+      fprintf(stderr, "Database error: %s\n", sqlite3_errmsg(db));
+    }
+
+    // Adding time measuring code to see how long it takes
+    int prevTime = time(NULL);
+    int count = 0;
+
+    sqlite3_exec(db, "BEGIN TRANSACTION", NULL, 0, NULL);
+    // This loops through the needed dates and calculates the MACD information
+    while (sqlite3_step(resDate) == 100)
+    {
+        //std::cout << "~";
+
+        // Pulls in the data from the resDate and resCloseAsk resultsets
+        sqlite3_step(resCloseAsk);
+        double closeAsk = sqlite3_column_double(resCloseAsk, 0);
+        int date = sqlite3_column_int(resDate, 0);
+
+        // Calculates the two main EMAs using the stripped down method
+        EMA12 = EMA(12, closeAsk, prevEMA12);
+        EMA26 = EMA(26, closeAsk, prevEMA26);
+
+        // Prepares several of the fields for the database
+        sqlite3_bind_int(insert, 1, date);
+        sqlite3_bind_double(insert, 2, EMA26);
+        sqlite3_bind_double(insert, 3, EMA12);
+        sqlite3_bind_double(insert, 4, EMA12 - EMA26);
+
+        // Calculates EMA of the difference between the averages using stripped
+        // down method
+        sign = EMA(9, EMA12 - EMA26, prevSign);
+
+        // Fills in the remaining values in the prepared statement and executes
+        // the prepared statement
+        sqlite3_bind_double(insert, 5, sign);
+        sqlite3_bind_double(insert, 6, (EMA12 - EMA26) - sign);
+        sqlite3_step(insert);
+        sqlite3_reset(insert);
+        sqlite3_clear_bindings(insert);
+
+        // Stores the results of this loop so that they can be used in the next
+        // loop to save on queries
+        prevDate = date;
+        prevEMA12 = EMA12;
+        prevEMA26 = EMA26;
+        prevSign = sign;
+
+        // Prints out some performance information every hour of data
+        // TODO make this section scale based on duration of data points, and
+        // provide a duration estimate
+        if (date % 3600 == 0) {
+            count++;
+            int curTime = time(NULL);
+            std::cout << dataTable + ": " << count << " hours took " << curTime - prevTime << ". Average: " << (curTime - prevTime) / (double)count << '\n';
+        }
+    }
+    sqlite3_exec(db, "END TRANSACTION", NULL, 0, NULL);
+    sqlite3_finalize(resDate);
+    sqlite3_finalize(insert);
+    sqlite3_finalize(resEMA);
+    sqlite3_finalize(resCloseAsk);
+    printf("made it\n");
+    return 1;
+    /*
+    //    std::cout << "RUNNING" << '\n';
 
     // Finds the last date that has a MACD already to start from there
     sql::Statement *stmt    = con->createStatement();
@@ -162,6 +274,7 @@ int Analysis::calcMACD(std::string resultTable, std::string dataTable) {
     delete resCloseAsk;
     delete stmt;
     return 1;
+    */
 }
 
 // This is a cut down EMA method for use in backtesting calculations and doesn't
@@ -175,7 +288,7 @@ double Analysis::EMA(int num, double ask, double prevEMA)
 
 // This is the full fat original EMA method for initialization purposes.
 // It might be possible to use/make a cut down version, but I'm not sure
-// This is no longer used, and will probably be deleted.
+// NOTE This is no longer used, and will probably be deleted.
 double Analysis::EMA(int num, double val, int prevDate, int newDate, std::string dataTableName, std::string resultTableName, std::string ema, std::string newDataField) {
 
     /*
