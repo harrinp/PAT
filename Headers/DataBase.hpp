@@ -1,5 +1,5 @@
 //=================================================================================================
-//                    Copyright (C) 2017 Olivier Mallet - All Rights Reserved                      
+//                    Copyright (C) 2017 Olivier Mallet - All Rights Reserved
 //=================================================================================================
 
 #ifndef DATABASE_HPP
@@ -28,7 +28,7 @@ public:
    std::vector<Bar> read_table(const std::string& tab_name, const std::string& start_date, const std::string& end_date);
    // get last n rows from table in database (most recent will be first element in vector)
    std::vector<Bar> read_table(const std::string& tab_name, unsigned n);
-   // get last row from table in database 
+   // get last row from table in database
    Bar get_last_row(const std::string& tab_name);
 
 
@@ -37,6 +37,7 @@ private:
    std::unique_ptr<sql::Statement> stmt;
    std::unique_ptr<sql::PreparedStatement> pstmt;
    std::unique_ptr<sql::ResultSet> res;
+   sqlite3 *db;
 
    // fill vector of Bars with data from table in database
    void getData(std::vector<Bar>& data);
@@ -47,55 +48,112 @@ private:
 /*-------------------------------------------------------------------------------------------------*/
 
 // parameter constructor
-DataBase::DataBase(const std::string& db_name) 
+DataBase::DataBase(const std::string& db_name)
 {
-   try {
-      // creating a connection 
-      sql::Driver* driver = get_driver_instance();
-      con.reset(driver->connect(URL,USER,PASSWORD)); 
-      // connecting to database
-      con->setSchema(db_name);  
-      // initializing statement
-      stmt.reset(con->createStatement());      
-   } catch (sql::SQLException &e) {
-      exception_caught(e);
-   }  
+    // creating a connection
+    char *zErrorMessage = 0;
+    int rc;
+    rc = sqlite3_open(db_name.c_str(), &db);
+    if (rc)
+    {
+      fprintf(stderr, "Can't open database %s\n", sqlite3_errmsg(db));
+      sqlite3_close(db);
+    }
 }
+
+// NOTE maybe this needs a destructor? I don't know maybe I should run it through valgrind
 
 /*-------------------------------------------------------------------------------------------------*/
 
 // create or re-initialize a table in database to contain Bars
-void DataBase::create_table(const std::string& tab_name) 
+void DataBase::create_table(const std::string& tab_name)
 {
+  int rc;
+  rc = sqlite3_exec(db, ("DROP TABLE IF EXISTS " + tab_name).c_str(), NULL, 0, NULL);
+  if (rc)
+  {
+    fprintf(stderr, "Database error: %s\n", sqlite3_errmsg(db));
+  }
+  rc = sqlite3_exec(db, ("CREATE TABLE " + tab_name + " (date INTEGER UNSIGNED,"
+                         "openBid FLOAT(8,5), openAsk FLOAT(8,5),"
+                         "highBid FLOAT(8,5), highAsk FLOAT(8,5),"
+                         "lowBid FLOAT(8,5), lowAsk FLOAT(8,5),"
+                         "closeBid FLOAT(8,5), closeAsk FLOAT(8,5),"
+                         "volume INTEGER UNSIGNED,PRIMARY KEY(date))").c_str(), NULL, 0, NULL);
+
+  if (rc)
+  {
+    fprintf(stderr, "Database error: %s\n", sqlite3_errmsg(db));
+  }
+  /* NOTE Old code
    try {
       stmt->execute("DROP TABLE IF EXISTS " + tab_name);
       stmt->execute("CREATE TABLE " + tab_name + " (date INTEGER UNSIGNED,  "
                                                  "  openBid FLOAT(8,5),     "
-                                                 "  openAsk FLOAT(8,5),     " 
-                                                 "  highBid FLOAT(8,5),     " 
-                                                 "  highAsk FLOAT(8,5),     " 
-                                                 "  lowBid FLOAT(8,5),      " 
-                                                 "  lowAsk FLOAT(8,5),      " 
-                                                 "  closeBid FLOAT(8,5),    " 
-                                                 "  closeAsk FLOAT(8,5),    "  
+                                                 "  openAsk FLOAT(8,5),     "
+                                                 "  highBid FLOAT(8,5),     "
+                                                 "  highAsk FLOAT(8,5),     "
+                                                 "  lowBid FLOAT(8,5),      "
+                                                 "  lowAsk FLOAT(8,5),      "
+                                                 "  closeBid FLOAT(8,5),    "
+                                                 "  closeAsk FLOAT(8,5),    "
                                                  "  volume INTEGER UNSIGNED,"
                                                  "  PRIMARY KEY(date))");
    } catch (sql::SQLException &e) {
       exception_caught(e);
-   }   
+   }
+   */
 }
 
 /*-------------------------------------------------------------------------------------------------*/
 
 // write to table in database appending vector of Bars starting from position start in vector
-void DataBase::write_table(const std::string& tab_name, const std::vector<Bar>& data, int start) 
+void DataBase::write_table(const std::string& tab_name, const std::vector<Bar>& data, int start)
 {
+
+  sqlite3_stmt *ppStmt;
+  int bufferSize = 256;
+  int rc;
+  rc = sqlite3_prepare_v2(db, ("INSERT INTO " + tab_name + "(date, openBid, openAsk,"
+                               " highBid, highAsk, lowBid, lowAsk, closeBid, closeAsk, "
+                               " volume    ) VALUES (?,?,?,?,?,?,?,?,?,?)").c_str(), -1, &ppStmt, 0);
+
+  if (rc)
+  {
+    fprintf(stderr, "Database error: %s\n", sqlite3_errmsg(db));
+  }
+  rc = sqlite3_exec(db, "BEGIN TRANSACTION", NULL, 0, NULL);
+
+  // There's too many things in here I should probably make a better way to error check, or just give up
+  for (int i = start; i < data.size(); ++i)
+  {
+
+    sqlite3_bind_int(ppStmt, 1, data[i].date);
+    sqlite3_bind_double(ppStmt, 2, data[i].openBid);
+    sqlite3_bind_double(ppStmt, 3, data[i].openAsk);
+    sqlite3_bind_double(ppStmt, 4, data[i].highBid);
+    sqlite3_bind_double(ppStmt, 5, data[i].highAsk);
+    sqlite3_bind_double(ppStmt, 6, data[i].lowBid);
+    sqlite3_bind_double(ppStmt, 7, data[i].lowAsk);
+    sqlite3_bind_double(ppStmt, 8, data[i].closeBid);
+    sqlite3_bind_double(ppStmt, 9, data[i].closeAsk);
+    sqlite3_bind_int(ppStmt, 10, data[i].volume);
+
+    sqlite3_step(ppStmt);
+    sqlite3_reset(ppStmt);
+    sqlite3_clear_bindings(ppStmt);
+
+  }
+  sqlite3_finalize(ppStmt);
+  sqlite3_exec(db, "END TRANSACTION", NULL, 0, NULL);
+
+  /* NOTE old code
    try {
       pstmt.reset(con->prepareStatement("INSERT INTO " + tab_name + "(date,     "
                                                                     " openBid,  "
                                                                     " openAsk,  "
                                                                     " highBid,  "
-                                                                    " highAsk,  " 
+                                                                    " highAsk,  "
                                                                     " lowBid,   "
                                                                     " lowAsk,   "
                                                                     " closeBid, "
@@ -105,27 +163,29 @@ void DataBase::write_table(const std::string& tab_name, const std::vector<Bar>& 
       // writing to table
       for (int i = start; i < data.size(); ++i) {
          pstmt->setInt(1, data[i].date);
-         pstmt->setDouble(2, data[i].openBid); 
-         pstmt->setDouble(3, data[i].openAsk); 
-         pstmt->setDouble(4, data[i].highBid); 
-         pstmt->setDouble(5, data[i].highAsk); 
-         pstmt->setDouble(6, data[i].lowBid); 
-         pstmt->setDouble(7, data[i].lowAsk); 
-         pstmt->setDouble(8, data[i].closeBid); 
-         pstmt->setDouble(9, data[i].closeAsk); 
-         pstmt->setInt(10, data[i].volume);         
+         pstmt->setDouble(2, data[i].openBid);
+         pstmt->setDouble(3, data[i].openAsk);
+         pstmt->setDouble(4, data[i].highBid);
+         pstmt->setDouble(5, data[i].highAsk);
+         pstmt->setDouble(6, data[i].lowBid);
+         pstmt->setDouble(7, data[i].lowAsk);
+         pstmt->setDouble(8, data[i].closeBid);
+         pstmt->setDouble(9, data[i].closeAsk);
+         pstmt->setInt(10, data[i].volume);
          pstmt->execute();
       }
 
    } catch (sql::SQLException &e) {
       exception_caught(e);
-   }   
+   }
+   */
 }
 
 /*-------------------------------------------------------------------------------------------------*/
 
+// NOTE I don't think we ever call this method, maybe we should?
 // read full table from database and record the data into a vector of Bars
-std::vector<Bar> DataBase::read_table(const std::string& tab_name) 
+std::vector<Bar> DataBase::read_table(const std::string& tab_name)
 {
    std::vector<Bar> data;
 
@@ -138,11 +198,12 @@ std::vector<Bar> DataBase::read_table(const std::string& tab_name)
       exception_caught(e);
    }
 
-   return data; 
+   return data;
 }
 
 /*-------------------------------------------------------------------------------------------------*/
 
+// NOTE Also have never seen this called
 // read table from database from a given start date (included)
 std::vector<Bar> DataBase::read_table(const std::string& tab_name, const std::string& start_date)
 {
@@ -160,11 +221,12 @@ std::vector<Bar> DataBase::read_table(const std::string& tab_name, const std::st
       exception_caught(e);
    }
 
-   return data; 
+   return data;
 }
 
 /*-------------------------------------------------------------------------------------------------*/
 
+// NOTE unused
 // read table from database between a given start date and a given end date (included)
 std::vector<Bar> DataBase::read_table(const std::string& tab_name, const std::string& start_date, const std::string& end_date)
 {
@@ -183,13 +245,13 @@ std::vector<Bar> DataBase::read_table(const std::string& tab_name, const std::st
       exception_caught(e);
    }
 
-   return data; 
+   return data;
 }
 
 /*-------------------------------------------------------------------------------------------------*/
-
+// NOTE unused
 // get last n rows from table in database (most recent Bar will be first in vector)
-std::vector<Bar> DataBase::read_table(const std::string& tab_name, unsigned n) 
+std::vector<Bar> DataBase::read_table(const std::string& tab_name, unsigned n)
 {
    std::vector<Bar> data;
 
@@ -207,8 +269,9 @@ std::vector<Bar> DataBase::read_table(const std::string& tab_name, unsigned n)
 
 /*-------------------------------------------------------------------------------------------------*/
 
-// get last row from table in database 
-Bar DataBase::get_last_row(const std::string& tab_name) 
+
+// get last row from table in database
+Bar DataBase::get_last_row(const std::string& tab_name)
 {
    try {
       res.reset(stmt->executeQuery("SELECT * FROM " + tab_name + " ORDER BY date DESC LIMIT 1"));
@@ -232,6 +295,7 @@ Bar DataBase::get_last_row(const std::string& tab_name)
 
 /*-------------------------------------------------------------------------------------------------*/
 
+// NOTE only called by unused functions
 // fill vector of Bars with data from table in database
 void DataBase::getData(std::vector<Bar>& data)
 {
@@ -252,7 +316,7 @@ void DataBase::getData(std::vector<Bar>& data)
 /*-------------------------------------------------------------------------------------------------*/
 
 // output caught exception details
-void DataBase::exception_caught(sql::SQLException &e) 
+void DataBase::exception_caught(sql::SQLException &e)
 {
    std::cout << "ERROR: SQLException in " << __FILE__;
    std::cout << " (" << __FUNCTION__ << ") on line " << __LINE__ << "\n";
@@ -266,4 +330,3 @@ void DataBase::exception_caught(sql::SQLException &e)
 }
 
 #endif
-
