@@ -26,7 +26,6 @@ public:
     bool sell(int, std::string);
     static size_t responseWriter(void *contents, size_t size, size_t nmemb, std::string *s);
     json getTradesJson();
-    json getTradesJsonCurl();
     json get(std::string path);
     double getBalance();
 };
