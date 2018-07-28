@@ -23,7 +23,18 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
-Analysis::Analysis() : conn("practice") {
+Analysis::Analysis() : conn("practice")
+{
+    // creating a connection
+    char *zErrorMessage = 0;
+    int rc;
+    rc = sqlite3_open(DATABASE_NAME.c_str(), &db);
+    if (rc)
+    {
+      fprintf(stderr, "Can't open database %s\n", sqlite3_errmsg(db));
+      sqlite3_close(db);
+    }
+
     driver = get_driver_instance();
     con    = driver->connect(URL, USER, PASSWORD);
     //qdb::OandaAPI ;
@@ -164,8 +175,10 @@ double Analysis::EMA(int num, double ask, double prevEMA)
 
 // This is the full fat original EMA method for initialization purposes.
 // It might be possible to use/make a cut down version, but I'm not sure
+// This is no longer used, and will probably be deleted.
 double Analysis::EMA(int num, double val, int prevDate, int newDate, std::string dataTableName, std::string resultTableName, std::string ema, std::string newDataField) {
 
+    /*
     // Pulls in the previous EMA from the database
     sql::Statement *stmt = con->createStatement();
     sql::ResultSet *res  = stmt->executeQuery("SELECT * FROM " + DATABASE_NAME + "." + resultTableName + " WHERE date = " + std::to_string(prevDate));
@@ -193,13 +206,27 @@ double Analysis::EMA(int num, double val, int prevDate, int newDate, std::string
     delete stmt;
 
     return (ask - prevEMA) * mult + prevEMA;
+    */
 }
 
 
 void Analysis::initializeMACDTable(std::string initialize, std::string data) {
 
      //  deleting old table
-    sql::Statement *stmt = con->createStatement();
+
+    int rc;
+    rc = sqlite3_exec(db, ("DROP TABLE IF EXISTS " + initialize).c_str(), NULL, 0, NULL);
+    if (rc)
+    {
+      fprintf(stderr, "Database error: %s\n", sqlite3_errmsg(db));
+    }
+    rc = sqlite3_exec(db, ("CREATE TABLE " + initialize + " (date integer unsigned NOT NULL, EMA26 decimal(8,5) DEFAULT NULL, "
+                           "EMA12 decimal(8,5) DEFAULT NULL, MACD decimal(8,5) DEFAULT NULL, sign decimal(8,5) DEFAULT NULL, "
+                           "result decimal(8,5) DEFAULT NULL)").c_str(), NULL, 0, NULL);
+    if (rc)
+    {
+      fprintf(stderr, "Database error: %s\n", sqlite3_errmsg(db));
+    }
     // This is commented out because if there's nothing in the table to begin
     // with, this crashes it. Uncomment it if you messed up your table
     // TODO Make doing this a commandline flag so it is easy to throw everything
@@ -208,7 +235,160 @@ void Analysis::initializeMACDTable(std::string initialize, std::string data) {
 
 
      //  getting the first EMA12 which is the linear average of first 12
+    sqlite3_stmt *res;
+    rc = sqlite3_prepare_v2(db, ("SELECT * FROM " + data + " ORDER BY date ASC LIMIT 35").c_str(), -1, &res, 0);
+    if (rc)
+    {
+      fprintf(stderr, "Database error: %s\n", sqlite3_errmsg(db));
+    }
+    sqlite3_stmt *insert;
+    rc = sqlite3_prepare_v2(db, ("INSERT INTO " + initialize + " (date, EMA12) VALUES (?, ?)").c_str(), -1, &insert, 0);
+    if (rc)
+    {
+      fprintf(stderr, "Database error: %s\n", sqlite3_errmsg(db));
+    }
 
+    double asks [35];
+
+    for(int i = 0 ; i < 12 ; i++)
+    {
+      sqlite3_step(res);
+      asks[i] = sqlite3_column_double(res, 8); // Gets the closeAsk
+    }
+
+    double ave   = 0.0;
+    double count = 0.0;
+
+    for (int i = 11; i >= 0; i--)
+    {
+        ave   += asks[i] * (i + 1);
+        count += i + 1;
+    }
+    ave /= count;
+
+    int prevDate = sqlite3_column_int(res, 0); // Gets the date
+
+    sqlite3_bind_int(insert, 1, prevDate);
+    sqlite3_bind_double(insert, 2, ave);
+    sqlite3_step(insert);
+    sqlite3_reset(insert);
+    sqlite3_clear_bindings(insert);
+
+    //  getting the next 13 EMA12 which are normal EMAs
+
+    double EMA12 = 0;
+    double prevEMA12 = ave;
+
+    for (int i = 0; i < 13; i++)
+    {
+        sqlite3_step(res);
+        asks[12 + i] = sqlite3_column_double(res, 8); // Gets the closeAsk
+
+
+        EMA12    = EMA(12, asks[12+i], prevEMA12);
+        prevEMA12 = EMA12;
+        prevDate = sqlite3_column_int(res, 0); // Gets the date
+
+        //std::cout << "EMA12:" << EMA12 << '\n';
+
+        sqlite3_bind_int(insert, 1, prevDate);
+        sqlite3_bind_double(insert, 2, EMA12);
+        sqlite3_step(insert);
+        sqlite3_reset(insert);
+        sqlite3_clear_bindings(insert);
+    }
+
+    //  getting the first EMA26 (linear average of first 26) while getting next EMA12 and MACD
+    rc = sqlite3_prepare_v2(db, ("INSERT INTO " + initialize + " (date, EMA26, EMA12, MACD) VALUES (?, ?, ?, ?)").c_str(), -1, &insert, 0);
+    if (rc)
+    {
+      fprintf(stderr, "Database error: %s\n", sqlite3_errmsg(db));
+    }
+    sqlite3_step(res);
+
+    double MACDs [9];
+
+    ave   = 0.0;
+    count = 0.0;
+    for (int i = 24; i >= 0; i--)
+    {
+        ave   += asks[i] * (i + 1);
+        count += i + 1;
+    }
+    ave /= count;
+    EMA12 = EMA(12, sqlite3_column_double(res, 8), prevEMA12);
+    prevEMA12 = EMA12;
+
+    sqlite3_bind_int(insert, 1, sqlite3_column_int(res, 0));
+    sqlite3_bind_double(insert, 2, ave);
+    sqlite3_bind_double(insert, 3, EMA12);
+    sqlite3_bind_double(insert, 4, EMA12 - ave);
+    sqlite3_step(insert);
+    sqlite3_reset(insert);
+    sqlite3_clear_bindings(insert);
+    MACDs[0] = EMA12 - ave;
+
+    double EMA26 = 0.0;
+    double prevEMA26 = ave;
+    double closeAsk = 0.0;
+
+    for (int i = 0; i < 7; i++)
+    {
+        sqlite3_step(res);
+        closeAsk = sqlite3_column_double(res, 8);
+        EMA12 = EMA(12, closeAsk, prevEMA12);
+        prevEMA12 = EMA12;
+        EMA26 = EMA(26, closeAsk, prevEMA26);
+        prevEMA26 = EMA26;
+        sqlite3_bind_int(insert, 1, sqlite3_column_int(res, 0));
+        sqlite3_bind_double(insert, 2, EMA26);
+        sqlite3_bind_double(insert, 3, EMA12);
+        sqlite3_bind_double(insert, 4, EMA12 - EMA26);
+        sqlite3_step(insert);
+        sqlite3_reset(insert);
+        sqlite3_clear_bindings(insert);
+        MACDs[1 + i] = EMA12 - EMA26;
+    }
+
+    sqlite3_step(res);
+    closeAsk = sqlite3_column_double(res, 8);
+    EMA12 = EMA(12, closeAsk, prevEMA12);
+    prevEMA12 = EMA12;
+    EMA26 = EMA(26, closeAsk, prevEMA26);
+    prevEMA26 = EMA26;
+
+    MACDs[8] = EMA12 - EMA26;
+
+    rc = sqlite3_prepare_v2(db, ("INSERT INTO " + initialize + " (date, EMA26, EMA12, MACD, sign, result) VALUES(?, ?, ?, ?, ?, ?)").c_str(), -1, &insert, 0);
+    if (rc)
+    {
+      fprintf(stderr, "Database error: %s\n", sqlite3_errmsg(db));
+    }
+
+    sqlite3_bind_int(insert, 1, sqlite3_column_int(res, 0));
+    sqlite3_bind_double(insert, 2, EMA26);
+    sqlite3_bind_double(insert, 3, EMA12);
+    sqlite3_bind_double(insert, 4, EMA12 - EMA26);
+
+    double sig = 0.0;
+    count = 0.0;
+    for (int i = 8; i >= 0; i--)
+    {
+        sig   += MACDs[i] * (i + 1);
+        count += i + 1;
+    }
+    sig /= count;
+
+    sqlite3_bind_double(insert, 5, sig);
+    sqlite3_bind_double(insert, 6, MACDs[8] - sig);
+    sqlite3_step(insert);
+    sqlite3_reset(insert);
+    sqlite3_clear_bindings(insert);
+
+    sqlite3_finalize(res);
+    sqlite3_finalize(insert);
+    printf("made it\n");
+    /*
     stmt = con->createStatement();
     sql::ResultSet *res = stmt->executeQuery("SELECT * FROM " + DATABASE_NAME + "." + data + " ORDER BY date ASC LIMIT 35");
 
@@ -222,6 +402,7 @@ void Analysis::initializeMACDTable(std::string initialize, std::string data) {
         res->next();
         asks[i] = res->getDouble("closeAsk"); // Changed this from a += to an =
     }
+
     double ave   = 0.0;
     double count = 0.0;
     for (int i = 11; i >= 0; i--) {
@@ -296,7 +477,6 @@ void Analysis::initializeMACDTable(std::string initialize, std::string data) {
         prevDate     = res->getInt("date");
         MACDs[1 + i] = EMA12 - EMA26;
     }
-
     res->next();
     EMA12 = EMA(12, 0.0, prevDate, res->getInt("date"), data, initialize, "EMA12", "closeAsk");
     EMA26 = EMA(26, 0.0, prevDate, res->getInt("date"), data, initialize, "EMA26", "closeAsk");
@@ -327,4 +507,5 @@ void Analysis::initializeMACDTable(std::string initialize, std::string data) {
 
     delete res;
     delete stmt;
+    */
 }

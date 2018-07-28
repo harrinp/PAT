@@ -28,6 +28,7 @@ private:
     // Full version with database communication
     double EMA(int, double, int, int, std::string, std::string, std::string, std::string);
     qdb::OandaAPI conn;
+    sqlite3 *db;
 
 };
 
