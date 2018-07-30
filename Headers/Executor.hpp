@@ -5,7 +5,10 @@
 #include <string>
 #include <unistd.h>
 #include <curl/curl.h>
+#include <string>
+#include "nlohmann/json.hpp"
 #include "Trade.hpp"
+#include "Config.hpp"
 
 
 // for convenience
@@ -25,7 +28,7 @@ public:
     static int buyOrSell(int, std::string);
     bool sell(int, std::string);
     bool buy(int, std::string);
-    
+
     json getTradesJson();
     double getProfit();
     double getBalance();

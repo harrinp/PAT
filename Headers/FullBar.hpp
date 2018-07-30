@@ -3,13 +3,8 @@
 
 #include <unistd.h>
 #include <vector>
-#include <mysql_connection.h>
-#include <mysql/mysql.h>
-#include <cppconn/driver.h>
-#include <cppconn/exception.h>
-#include <cppconn/resultset.h>
-#include <cppconn/statement.h>
-#include <cppconn/prepared_statement.h>
+#include <string>
+#include <unistd.h>
 #include <stdlib.h>
 #include "../Headers/Config.hpp"
 
@@ -21,7 +16,7 @@
 class FullBar {
 public:
     // Constructors
-    FullBar (int date, std::string tableName);
+    FullBar(int date, std::string tableName);
 
     FullBar(
         int date,
@@ -55,7 +50,8 @@ public:
 
     //Functions
     std::string printableBar();
-    static std::vector<FullBar> getBars(unsigned int, unsigned int, std::string);
+    static std::vector<FullBar> getBarsBetween(unsigned int, unsigned int, std::string);
+    static std::vector<FullBar> getBarsGreater(unsigned int, std::string);
 };
 
 #endif

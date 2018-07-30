@@ -1,9 +1,4 @@
 #include "Headers/Executor.hpp"
-#include "Headers/QuotesDB.hpp"
-#include "Headers/DataBase.hpp"
-#include "Headers/OandaAPI.hpp"
-using namespace Poco::Net;
-using namespace Poco;
 
 // int main(int argc, char const *argv[]) {
 //     Executor e;
@@ -90,7 +85,7 @@ json Executor::post(std::string path, json j, std::vector <std::string> v) {
 
     //Sets up the writing function
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, responseWriter);   // Our function defined above will be called to handle the response
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &s);                  
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &s);
 
     // Post method
     CURLcode ret = curl_easy_perform(curl);
@@ -124,7 +119,7 @@ json Executor::get(std::string path){
 
     //Sets up the writing function
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, responseWriter);   // Our function defined above will be called to handle the response
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &s);                  
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &s);
 
     // Post method
     CURLcode ret = curl_easy_perform(curl);
@@ -190,10 +185,3 @@ json Executor::getTradesJson() {
     json j = get(std::string("/v3/accounts/") + ACCOUNT_ID + std::string("/openTrades"));
     return j;
 }
-
-
-
-
-
-
-

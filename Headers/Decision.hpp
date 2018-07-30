@@ -1,6 +1,12 @@
 #ifndef DECISION_HPP
 #define DECISION_HPP
 
+#include <iostream>
+#include <string>
+#include <sstream>
+#include <unistd.h>
+#include <vector>
+
 #include "Trade.hpp"
 #include "TestExec.hpp"
 #include "Executor.hpp"

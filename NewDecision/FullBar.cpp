@@ -89,7 +89,7 @@ std::string FullBar::printableBar(){
 /*
  *      Gets a vector of bars between start and stop dates, inclusive
  */
-std::vector<FullBar> FullBar::getBars(unsigned int start, unsigned int stop, std::string tableName){
+std::vector<FullBar> FullBar::getBarsBetween(unsigned int start, unsigned int stop, std::string tableName){
     sqlite3 *db;
     sqlite3_stmt * data;
     int rc;     // return code
@@ -116,11 +116,68 @@ std::vector<FullBar> FullBar::getBars(unsigned int start, unsigned int stop, std
             sqlite3_column_double(data,8),
             0,0,0,0,0, tableName
         );
+        f.closeAsk = sqlite3_column_double(data,8);
         bars.push_back(f);
     }
     rc = sqlite3_finalize(data);
 
     rc = sqlite3_prepare_v2(db, ("SELECT * FROM MACD_" + tableName + " WHERE date BETWEEN " + std::to_string(start) + " AND "+ std::to_string(stop) + " ORDER BY date ASC;").c_str(), -1 , &data, NULL);
+    if( rc ) {
+        fprintf(stderr, "Can't prepare statement: %s\n", sqlite3_errmsg(db));
+    }
+
+    int count = 0;
+    while (sqlite3_step(data) != SQLITE_DONE) {
+        bars[count].EMA26 = sqlite3_column_double(data, 1);
+        bars[count].EMA12 = sqlite3_column_double(data, 2);
+        bars[count].MACD = sqlite3_column_double(data, 3);
+        bars[count].sign = sqlite3_column_double(data, 4);
+        bars[count].result = sqlite3_column_double(data, 5);
+        count++;
+    }
+
+    rc = sqlite3_finalize(data);
+    sqlite3_close(db);
+
+    return bars;
+}
+
+/*
+ *      Gets a vector of bars between After a start date
+ */
+std::vector<FullBar> FullBar::getBarsGreater(unsigned int start, std::string tableName){
+    sqlite3 *db;
+    sqlite3_stmt * data;
+    int rc;     // return code
+
+    std::vector<FullBar> bars;
+
+    rc = sqlite3_open(DATABASE_NAME.c_str(), &db);
+    if( rc ) {
+        fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
+    }
+
+    rc = sqlite3_prepare_v2(db, ("SELECT * FROM " + tableName + " WHERE date > " + std::to_string(start) + " ORDER BY date ASC;").c_str(), -1 , &data, NULL);
+    if( rc ) {
+        fprintf(stderr, "Can't prepare statement: %s\n", sqlite3_errmsg(db));
+    }
+
+    while (sqlite3_step(data) != SQLITE_DONE) {
+        FullBar f = FullBar(
+            sqlite3_column_int(data, 0),
+            sqlite3_column_int(data, 9),
+            sqlite3_column_double(data,1),
+            sqlite3_column_double(data,7),
+            sqlite3_column_double(data,2),
+            sqlite3_column_double(data,8),
+            0,0,0,0,0, tableName
+        );
+        f.closeAsk = sqlite3_column_double(data,8);
+        bars.push_back(f);
+    }
+    rc = sqlite3_finalize(data);
+
+    rc = sqlite3_prepare_v2(db, ("SELECT * FROM MACD_" + tableName + " WHERE date > " + std::to_string(start) + " ORDER BY date ASC;").c_str(), -1 , &data, NULL);
     if( rc ) {
         fprintf(stderr, "Can't prepare statement: %s\n", sqlite3_errmsg(db));
     }
