@@ -5,14 +5,14 @@
 using namespace Poco::Net;
 using namespace Poco;
 
-int main(int argc, char const *argv[]) {
-    Executor e;
-    json j = e.getTradesJson();//e.get(std::string("/v3/accounts/") + ACCOUNT_ID + std::string("/summary"));
-    //std::vector<Trade> trades = Trade::translateTrades(j);
-    std::cout << j.dump(4) << std::endl;
-    std::cout << e.getBalance() << std::endl;
-    return 0;
-}
+// int main(int argc, char const *argv[]) {
+//     Executor e;
+//     json j = e.getTradesJson();//e.get(std::string("/v3/accounts/") + ACCOUNT_ID + std::string("/summary"));
+//     //std::vector<Trade> trades = Trade::translateTrades(j);
+//     std::cout << j.dump(4) << std::endl;
+//     std::cout << e.getBalance() << std::endl;
+//     return 0;
+// }
 
 /*
  *      called internally by default
@@ -172,7 +172,8 @@ double Executor::getProfit() {
 }
 
 /*
- *      TODO: Switch this to curl
+ *      Gets current balance by querying the server
+ *      Uses the cURL-wrapping get request method above
  */
 double Executor::getBalance(){
     json j = get(std::string("/v3/accounts/") + ACCOUNT_ID + std::string("/summary"));
@@ -182,32 +183,12 @@ double Executor::getBalance(){
 }
 
 /*
- *      TODO: Switch this to curl
+ *      Gets current trades as a json object by querying the server
+ *      Uses the cURL-wrapping get request method above
  */
 json Executor::getTradesJson() {
     json j = get(std::string("/v3/accounts/") + ACCOUNT_ID + std::string("/openTrades"));
     return j;
-}
-
-json Executor::getTradesJsonCurl(){
-
-}
-
-
-
-/*
- *      Testing function not to be used at run time
- */
-void Executor::test() {
-    qdb::OandaAPI conn("practice");
-    std::string   x("EUR_USD_D");
-    std::string   endpoint("/v3/accounts/" + ACCOUNT_ID + "/instruments");
-    //std::cout << conn.request(endpoint) << std::endl;
-
-    json j;
-
-    j = json::parse(conn.request(endpoint));
-    std::cout << j.dump(4) << std::endl;
 }
 
 

@@ -64,22 +64,22 @@ int Analysis::calcMACD(std::string resultTable, std::string dataTable)
     sqlite3_stmt *resCloseAsk;
     sqlite3_stmt *insert;
 
-    rc = sqlite3_prepare_v2(db, ("SELECT date FROM " + resultTable + " ORDER BY date DESC LIMIT 1").c_str(), -1, &resDate, 0);
+    rc = sqlite3_prepare_v2(db, ("SELECT date FROM " + resultTable + " ORDER BY date DESC LIMIT 1").c_str(), -1, &resDate, NULL);
     if (rc)
     {
       fprintf(stderr, "Database error: %s\n", sqlite3_errmsg(db));
     }
 
     sqlite3_step(resDate);
-    int MACDDate = sqlite3_column_int(resDate, 0);
+    int MACDDate = sqlite3_column_int(resDate, NULL);
 
     // QUESTION Should this have an enforced order?
-    rc = sqlite3_prepare_v2(db, ("SELECT date FROM " + dataTable + " WHERE date > " + std::to_string(MACDDate)).c_str(), -1, &resDate, 0);
+    rc = sqlite3_prepare_v2(db, ("SELECT date FROM " + dataTable + " WHERE date > " + std::to_string(MACDDate)).c_str(), -1, &resDate, NULL);
     if (rc)
     {
       fprintf(stderr, "Database error: %s\n", sqlite3_errmsg(db));
     }
-    rc = sqlite3_prepare_v2(db, ("INSERT INTO " + resultTable + " (date, EMA26, EMA12, MACD, sign, result) VALUES(?, ?, ?, ?, ?, ?)").c_str(), -1, &insert, 0);
+    rc = sqlite3_prepare_v2(db, ("INSERT INTO " + resultTable + " (date, EMA26, EMA12, MACD, sign, result) VALUES(?, ?, ?, ?, ?, ?)").c_str(), -1, &insert, NULL);
     if (rc)
     {
       fprintf(stderr, "Database error: %s\n", sqlite3_errmsg(db));
@@ -90,7 +90,7 @@ int Analysis::calcMACD(std::string resultTable, std::string dataTable)
     double sign     = 0.0;
     int    prevDate = MACDDate;
 
-    rc = sqlite3_prepare_v2(db, ("SELECT * FROM " + resultTable + " WHERE date = " + std::to_string(MACDDate)).c_str(), -1, &resEMA, 0);
+    rc = sqlite3_prepare_v2(db, ("SELECT * FROM " + resultTable + " WHERE date = " + std::to_string(MACDDate)).c_str(), -1, &resEMA, NULL);
     if (rc)
     {
       fprintf(stderr, "Database error: %s\n", sqlite3_errmsg(db));
@@ -101,7 +101,7 @@ int Analysis::calcMACD(std::string resultTable, std::string dataTable)
     double prevSign = sqlite3_column_double(resEMA, 4);
 
     // QUESTION Should this have an enforced order?
-    rc = sqlite3_prepare_v2(db, ("SELECT closeAsk FROM " + dataTable + " WHERE date > " + std::to_string(MACDDate)).c_str(), -1, &resCloseAsk, 0);
+    rc = sqlite3_prepare_v2(db, ("SELECT closeAsk FROM " + dataTable + " WHERE date > " + std::to_string(MACDDate)).c_str(), -1, &resCloseAsk, NULL);
     if (rc)
     {
       fprintf(stderr, "Database error: %s\n", sqlite3_errmsg(db));
@@ -349,13 +349,13 @@ void Analysis::initializeMACDTable(std::string initialize, std::string data) {
 
      //  getting the first EMA12 which is the linear average of first 12
     sqlite3_stmt *res;
-    rc = sqlite3_prepare_v2(db, ("SELECT * FROM " + data + " ORDER BY date ASC LIMIT 35").c_str(), -1, &res, 0);
+    rc = sqlite3_prepare_v2(db, ("SELECT * FROM " + data + " ORDER BY date ASC LIMIT 35").c_str(), -1, &res, NULL);
     if (rc)
     {
       fprintf(stderr, "Database error: %s\n", sqlite3_errmsg(db));
     }
     sqlite3_stmt *insert;
-    rc = sqlite3_prepare_v2(db, ("INSERT INTO " + initialize + " (date, EMA12) VALUES (?, ?)").c_str(), -1, &insert, 0);
+    rc = sqlite3_prepare_v2(db, ("INSERT INTO " + initialize + " (date, EMA12) VALUES (?, ?)").c_str(), -1, &insert, NULL);
     if (rc)
     {
       fprintf(stderr, "Database error: %s\n", sqlite3_errmsg(db));
@@ -412,7 +412,7 @@ void Analysis::initializeMACDTable(std::string initialize, std::string data) {
     }
 
     //  getting the first EMA26 (linear average of first 26) while getting next EMA12 and MACD
-    rc = sqlite3_prepare_v2(db, ("INSERT INTO " + initialize + " (date, EMA26, EMA12, MACD) VALUES (?, ?, ?, ?)").c_str(), -1, &insert, 0);
+    rc = sqlite3_prepare_v2(db, ("INSERT INTO " + initialize + " (date, EMA26, EMA12, MACD) VALUES (?, ?, ?, ?)").c_str(), -1, &insert, NULL);
     if (rc)
     {
       fprintf(stderr, "Database error: %s\n", sqlite3_errmsg(db));
@@ -472,7 +472,7 @@ void Analysis::initializeMACDTable(std::string initialize, std::string data) {
 
     MACDs[8] = EMA12 - EMA26;
 
-    rc = sqlite3_prepare_v2(db, ("INSERT INTO " + initialize + " (date, EMA26, EMA12, MACD, sign, result) VALUES(?, ?, ?, ?, ?, ?)").c_str(), -1, &insert, 0);
+    rc = sqlite3_prepare_v2(db, ("INSERT INTO " + initialize + " (date, EMA26, EMA12, MACD, sign, result) VALUES(?, ?, ?, ?, ?, ?)").c_str(), -1, &insert, NULL);
     if (rc)
     {
       fprintf(stderr, "Database error: %s\n", sqlite3_errmsg(db));

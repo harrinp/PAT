@@ -2,7 +2,15 @@
 #include <assert.h>
 
 int main(int argc, char *argv[]) {
+
     Decider *d = NULL;
+    //FullBar f = FullBar(1532725140, std::string("EUR_USD_M1"));
+    //std::cout << f.printableBar() << std::endl;
+    std::vector<FullBar> bars = FullBar::getBars(1532724720, 1532725140, "EUR_USD_M1");
+
+    for (size_t i = 0; i < bars.size() ; i++) {
+        std::cout << bars[i].printableBar() << "\n_-_-_-_-_-\n\n";
+    }
 
     if (argc > 1 && strcmp(argv[1], "-t") == 0) {
         d = new Tester("EUR_USD_M1", "EUR_USD_H1", .0007, .0049);

@@ -18,16 +18,16 @@ public:
 
     std::vector<Trade> trades;
 
-    double getProfit();
+    static size_t responseWriter(void *contents, size_t size, size_t nmemb, std::string *s);
     static json post(std::string, json, std::vector<std::string>);
-    static void test();
-    bool buy(int, std::string);
+    static json get(std::string path);
+
     static int buyOrSell(int, std::string);
     bool sell(int, std::string);
-    static size_t responseWriter(void *contents, size_t size, size_t nmemb, std::string *s);
+    bool buy(int, std::string);
+    
     json getTradesJson();
-    json getTradesJsonCurl();
-    json get(std::string path);
+    double getProfit();
     double getBalance();
 };
 

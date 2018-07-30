@@ -10,28 +10,37 @@
 #include <cppconn/resultset.h>
 #include <cppconn/statement.h>
 #include <cppconn/prepared_statement.h>
+#include <stdlib.h>
 #include "../Headers/Config.hpp"
 
+#include <sqlite3.h>
+
 /*
-    This class is all the data from a bar of data in our mysql database
+    This class is all the data from a bar in our database
 */
 class FullBar {
 public:
+    // Constructors
     FullBar (int date, std::string tableName);
-    virtual ~FullBar ();
+
     FullBar(
-        int date, 
-        int volume, 
-        double openBid, 
-        double closeBid, 
-        double openAsk, 
-        double closeAsk, 
-        double EMA26, 
-        double EMA12, 
-        double MACD, 
-        double sign, 
-        double result);
-    int date;
+        int date,
+        int volume,
+        double openBid,
+        double closeBid,
+        double openAsk,
+        double closeAsk,
+        double EMA26,
+        double EMA12,
+        double MACD,
+        double sign,
+        double result,
+        std::string table);
+
+    std::string table;
+
+    //Data
+    unsigned int date;
     double openBid;
     double closeBid;
     double openAsk;
@@ -44,6 +53,9 @@ public:
     double sign;
     double result;
 
+    //Functions
+    std::string printableBar();
+    static std::vector<FullBar> getBars(unsigned int, unsigned int, std::string);
 };
 
 #endif
