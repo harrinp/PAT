@@ -99,7 +99,7 @@ void Tester::run() {
             //std::cout << "day " << counter / 1440 << " --- Profit: " << back.USD << "\n";
         }
         date = data.at(counter).date;
-        p    = Price(date, data.at(counter).closeAsk, data.at(counter).closeBid);
+        p    = data.at(counter).convertToPrice();
 
         closeProfitableOrNotTrades(p);
 
@@ -125,7 +125,7 @@ void Tester::run() {
 
         counter++;
     }
-    back.closeAll(Price(date, data.at(counter).closeAsk, data.at(counter).closeBid));
+    back.closeAll(data.at(counter).convertToPrice());
     if (verbose) {
         back.reportTrades();
     }

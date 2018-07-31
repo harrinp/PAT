@@ -12,7 +12,7 @@ execute: Executor.cpp
 example: example.cpp
 	${COMPILER} ${CCFLAGS2} example.cpp -o runE.out
 test:
-	${COMPILER} ${CCFLAGS2} NewDecision/TestMain.cpp NewDecision/Decider.cpp NewDecision/Tester.cpp NewDecision/FullBar.cpp TestExec.cpp Executor.cpp Trade.cpp -o runT.out
+	${COMPILER} ${CCFLAGS2} NewDecision/TestMain.cpp NewDecision/Decider.cpp NewDecision/Tester.cpp NewDecision/FullBar.cpp TestExec.cpp Trade.cpp -o runT.out
 
 # Use these ones for if your Ubuntu install is unhappy
 decideU: Decision.cpp TestExec.cpp

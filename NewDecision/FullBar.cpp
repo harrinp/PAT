@@ -51,6 +51,58 @@ FullBar::FullBar(int date, std::string tableName) {
     rc = sqlite3_finalize(data);
     sqlite3_close(db);
 }
+
+/*
+ *  Returns last bar of data for the given table
+*/
+FullBar::FullBar(std::string table){
+    sqlite3 *db;
+    sqlite3_stmt * data;
+    int rc; // Return code
+
+    rc = sqlite3_open(DATABASE_NAME.c_str(), &db);
+
+    if( rc ) {
+        fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
+    }
+
+    rc = sqlite3_prepare_v2(db, ("SELECT * FROM " + table + " ORDER BY DATE DESC LIMIT 1;").c_str(), -1 , &data, NULL);
+
+    if( rc ) {
+        fprintf(stderr, "Can't prepare statement: %s\n", sqlite3_errmsg(db));
+    }
+
+    rc = sqlite3_step(data);
+
+    this->date = (sqlite3_column_double(data, 0));
+    this->openBid = sqlite3_column_double(data,1);
+    this->openAsk = sqlite3_column_double(data,2);
+    this->closeBid = sqlite3_column_double(data,7);
+    this->closeAsk = sqlite3_column_double(data,8);
+    this->volume = sqlite3_column_int(data,9);
+
+    rc = sqlite3_finalize(data);
+    if( rc ) {
+        fprintf(stderr, "Failed to finalize: %s\n", sqlite3_errmsg(db));
+    }
+
+    rc = sqlite3_prepare_v2(db, ("SELECT * FROM MACD_" + table + " ORDER BY DATE DESC LIMIT 1;").c_str(), -1 , &data, NULL);
+    if( rc ) {
+        fprintf(stderr, "Can't prepare statement: %s\n", sqlite3_errmsg(db));
+    }
+
+    rc = sqlite3_step(data);
+
+    this->EMA26 = sqlite3_column_double(data, 1);
+    this->EMA12 = sqlite3_column_double(data, 2);
+    this->MACD = sqlite3_column_double(data, 3);
+    this->sign = sqlite3_column_double(data, 4);
+    this->result = sqlite3_column_double(data, 5);
+
+    rc = sqlite3_finalize(data);
+    sqlite3_close(db);
+}
+
 /*
  *      Constructor for raw data
  *      No sql calls are made
@@ -196,4 +248,8 @@ std::vector<FullBar> FullBar::getBarsGreater(unsigned int start, std::string tab
     sqlite3_close(db);
 
     return bars;
+}
+
+Price FullBar::convertToPrice(){
+    return Price(date, closeAsk, closeBid);
 }

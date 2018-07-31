@@ -56,3 +56,5 @@ Extras/testOutput\.csv
 *.swp
 
 newQuotes
+
+*.csv

@@ -6,7 +6,8 @@
 #include <string>
 #include <unistd.h>
 #include <stdlib.h>
-#include "../Headers/Config.hpp"
+#include "Config.hpp"
+#include "Trade.hpp"
 
 #include <sqlite3.h>
 
@@ -17,7 +18,7 @@ class FullBar {
 public:
     // Constructors
     FullBar(int date, std::string tableName);
-
+    FullBar(std::string tableName);
     FullBar(
         int date,
         int volume,
@@ -52,6 +53,7 @@ public:
     std::string printableBar();
     static std::vector<FullBar> getBarsBetween(unsigned int, unsigned int, std::string);
     static std::vector<FullBar> getBarsGreater(unsigned int, std::string);
+    Price convertToPrice();
 };
 
 #endif
