@@ -89,12 +89,13 @@ protected:
 
 class Runner: public Decider {
 public:
-    //virtual ~Decisioner(){};
-    Runner(std::string, std::string, double, double);
+    Runner(std::string, std::string, std::string, double, double);
     void run();
     double getTotal();
 protected:
+    std::string orderItemName;
     Executor exec;
+    int lastHourlyDate;
 };
 
 #endif

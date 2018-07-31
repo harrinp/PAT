@@ -3,8 +3,8 @@ CCFLAGS1 = -lPocoNet -lPocoNetSSL -lPocoFoundation -lPocoJSON -lmysqlcppconn -ls
 CCFLAGS2 = -lPocoNet -lPocoNetSSL -lPocoFoundation -lPocoJSON -lmysqlcppconn -lssl -lcrypto -I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib -lssl -lcrypto -std=c++11 -lcurl -lsqlite3
 CCFLAGS3 = -std=c++11 -lcurl -lsqlite3
 
-decide: TestExec.cpp
-	${COMPILER} ${CCFLAGS2} NewDecision/Decider.cpp NewDecision/Tester.cpp NewDecision/Runner.cpp NewDecision/FullBar.cpp TestExec.cpp Executor.cpp Trade.cpp -o runD.out
+decide:
+	${COMPILER} ${CCFLAGS3} RunMain.cpp Decider.cpp Runner.cpp FullBar.cpp Executor.cpp Trade.cpp -o runD.out
 analyze: Analysis.cpp
 	${COMPILER} ${CCFLAGS2} Analysis.cpp -o runA.out
 execute: Executor.cpp
@@ -12,7 +12,7 @@ execute: Executor.cpp
 example: example.cpp
 	${COMPILER} ${CCFLAGS2} example.cpp -o runE.out
 test:
-	${COMPILER} ${CCFLAGS2} NewDecision/TestMain.cpp NewDecision/Decider.cpp NewDecision/Tester.cpp NewDecision/FullBar.cpp TestExec.cpp Trade.cpp -o runT.out
+	${COMPILER} ${CCFLAGS2} TestMain.cpp Decider.cpp Tester.cpp FullBar.cpp TestExec.cpp Trade.cpp -o runT.out
 
 # Use these ones for if your Ubuntu install is unhappy
 decideU: Decision.cpp TestExec.cpp

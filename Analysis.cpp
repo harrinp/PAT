@@ -26,7 +26,6 @@ int main(int argc, char *argv[]) {
 Analysis::Analysis() : conn("practice")
 {
     // creating a connection
-    char *zErrorMessage = 0;
     int rc;
     rc = sqlite3_open(DATABASE_NAME.c_str(), &db);
     if (rc)
@@ -34,9 +33,7 @@ Analysis::Analysis() : conn("practice")
       fprintf(stderr, "Can't open database %s\n", sqlite3_errmsg(db));
       sqlite3_close(db);
     }
-
-    driver = get_driver_instance();
-    con    = driver->connect(URL, USER, PASSWORD);      // con is the pure mysql connection
+    // con is the pure mysql connection
     //qdb::OandaAPI ;
 }
 
@@ -319,6 +316,7 @@ double Analysis::EMA(int num, double val, int prevDate, int newDate, std::string
 
     return (ask - prevEMA) * mult + prevEMA;
     */
+    return 0;
 }
 
 

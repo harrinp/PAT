@@ -1,4 +1,4 @@
-#include "../Headers/Decision.hpp"
+#include "Headers/Decision.hpp"
 
 Tester::Tester(std::string table, std::string longerTable, double takeProfit, double stopLoss, std::vector <FullBar> *data, std::vector <FullBar> *dataLong) :
     Decider(true, 0),

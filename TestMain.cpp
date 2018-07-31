@@ -1,4 +1,4 @@
-#include "../Headers/Decision.hpp"
+#include "Headers/Decision.hpp"
 
 int main(int argc, char *argv[]) {
     if (argc > 1 && strcmp(argv[1], "-m") == 0){

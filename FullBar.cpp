@@ -1,4 +1,4 @@
-#include "../Headers/FullBar.hpp"
+#include "Headers/FullBar.hpp"
 
 /*
  *      Constructor that calls the database individually

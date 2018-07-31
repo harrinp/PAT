@@ -1,4 +1,4 @@
-#include "../Headers/Decision.hpp"
+#include "Headers/Decision.hpp"
 #include <assert.h>
 
 Decider::Decider(bool testing, unsigned int time) : testing(testing), time(time) {
