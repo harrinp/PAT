@@ -19,7 +19,6 @@ int main(int argc, char *argv[]) {
                     bestI = i;
                     bestJ = j;
                 }
-
             }
         }
 

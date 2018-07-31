@@ -1,6 +1,7 @@
 COMPILER = g++
 CCFLAGS1 = -lPocoNet -lPocoNetSSL -lPocoFoundation -lPocoJSON -lmysqlcppconn -lssl -lcrypto -I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib -lssl -lcrypto -I/usr/include/cppconn -std=c++11 -lcurl -I./Headers -lsqlite3
 CCFLAGS2 = -lPocoNet -lPocoNetSSL -lPocoFoundation -lPocoJSON -lmysqlcppconn -lssl -lcrypto -I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib -lssl -lcrypto -std=c++11 -lcurl -lsqlite3
+CCFLAGS3 = -std=c++11 -lcurl -lsqlite3
 
 decide: TestExec.cpp
 	${COMPILER} ${CCFLAGS2} NewDecision/Decider.cpp NewDecision/Tester.cpp NewDecision/Runner.cpp NewDecision/FullBar.cpp TestExec.cpp Executor.cpp Trade.cpp -o runD.out
@@ -10,6 +11,8 @@ execute: Executor.cpp
 	${COMPILER} ${CCFLAGS2} Executor.cpp Trade.cpp -o runX.out
 example: example.cpp
 	${COMPILER} ${CCFLAGS2} example.cpp -o runE.out
+test:
+	${COMPILER} ${CCFLAGS2} NewDecision/TestMain.cpp NewDecision/Decider.cpp NewDecision/Tester.cpp NewDecision/FullBar.cpp TestExec.cpp Executor.cpp Trade.cpp -o runT.out
 
 # Use these ones for if your Ubuntu install is unhappy
 decideU: Decision.cpp TestExec.cpp
