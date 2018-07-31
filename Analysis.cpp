@@ -71,7 +71,7 @@ int Analysis::calcMACD(std::string resultTable, std::string dataTable)
     }
 
     sqlite3_step(resDate);
-    int MACDDate = sqlite3_column_int(resDate, NULL);
+    int MACDDate = sqlite3_column_int(resDate, 0);
 
     // QUESTION Should this have an enforced order?
     rc = sqlite3_prepare_v2(db, ("SELECT date FROM " + dataTable + " WHERE date > " + std::to_string(MACDDate)).c_str(), -1, &resDate, NULL);
@@ -165,7 +165,6 @@ int Analysis::calcMACD(std::string resultTable, std::string dataTable)
     sqlite3_finalize(insert);
     sqlite3_finalize(resEMA);
     sqlite3_finalize(resCloseAsk);
-    printf("made it\n");
     return 1;
     /*
     //    std::cout << "RUNNING" << '\n';
@@ -500,7 +499,6 @@ void Analysis::initializeMACDTable(std::string initialize, std::string data) {
 
     sqlite3_finalize(res);
     sqlite3_finalize(insert);
-    printf("made it\n");
     /*
     stmt = con->createStatement();
     sql::ResultSet *res = stmt->executeQuery("SELECT * FROM " + DATABASE_NAME + "." + data + " ORDER BY date ASC LIMIT 35");

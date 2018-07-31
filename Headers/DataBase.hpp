@@ -112,7 +112,6 @@ void DataBase::write_table(const std::string& tab_name, const std::vector<Bar>& 
 {
 
   sqlite3_stmt *ppStmt;
-  int bufferSize = 256;
   int rc;
   rc = sqlite3_prepare_v2(db, ("INSERT INTO " + tab_name + "(date, openBid, openAsk,"
                                " highBid, highAsk, lowBid, lowAsk, closeBid, closeAsk, "
@@ -273,24 +272,25 @@ std::vector<Bar> DataBase::read_table(const std::string& tab_name, unsigned n)
 // get last row from table in database
 Bar DataBase::get_last_row(const std::string& tab_name)
 {
-   try {
-      res.reset(stmt->executeQuery("SELECT * FROM " + tab_name + " ORDER BY date DESC LIMIT 1"));
-      res->next();
+  sqlite3_stmt *ppStmt;
+  int rc;
+  rc = sqlite3_prepare_v2(db, ("SELECT * FROM " + tab_name + " ORDER BY date DESC LIMIT 1").c_str(), -1, &ppStmt, 0);
+  sqlite3_step(ppStmt);
 
-      return Bar(res->getInt("date"),
-                 res->getDouble("openBid"),
-                 res->getDouble("openAsk"),
-                 res->getDouble("highBid"),
-                 res->getDouble("highAsk"),
-                 res->getDouble("lowBid"),
-                 res->getDouble("lowAsk"),
-                 res->getDouble("closeBid"),
-                 res->getDouble("closeAsk"),
-                 res->getInt("volume"));
 
-   } catch (sql::SQLException &e) {
-      exception_caught(e);
-   }
+  Bar B = Bar(sqlite3_column_int(ppStmt, 0),
+              sqlite3_column_double(ppStmt, 1),
+              sqlite3_column_double(ppStmt, 2),
+              sqlite3_column_double(ppStmt, 3),
+              sqlite3_column_double(ppStmt, 4),
+              sqlite3_column_double(ppStmt, 5),
+              sqlite3_column_double(ppStmt, 6),
+              sqlite3_column_double(ppStmt, 7),
+              sqlite3_column_double(ppStmt, 8),
+              sqlite3_column_double(ppStmt, 9));
+
+  sqlite3_finalize(ppStmt);
+  return B;
 }
 
 /*-------------------------------------------------------------------------------------------------*/
