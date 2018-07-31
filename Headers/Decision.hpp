@@ -40,6 +40,8 @@ public:
     void fillResults(FullBar *, std::string);
     void fillLongPrices(FullBar *);
 
+    virtual double getTotal() = 0;
+
     virtual void run() = 0;
 
 protected:
@@ -69,10 +71,19 @@ class Tester: public Decider {
 public:
     //virtual ~Tester(){};
     Tester(std::string, std::string, double, double);
+    Tester(std::string, std::string, double, double, std::vector <FullBar> *, std::vector <FullBar> *);
     void run();
+    void runMany();
     void closeProfitableOrNotTrades(Price);
+    double getTotal();
 
+    bool verbose;
+
+    std::vector <FullBar> * minutes;
+    std::vector <FullBar> * hours;
 protected:
+
+
     BackExecutor back;
 };
 
@@ -81,6 +92,7 @@ public:
     //virtual ~Decisioner(){};
     Runner(std::string, std::string, double, double);
     void run();
+    double getTotal();
 protected:
     Executor exec;
 };
