@@ -17,8 +17,8 @@
 class FullBar {
 public:
     // Constructors
-    FullBar(int date, std::string tableName);
-    FullBar(std::string tableName);
+    FullBar(int date, std::string tableName, bool);
+    FullBar(std::string tableName, bool);
     FullBar(
         int date,
         int volume,
@@ -31,9 +31,20 @@ public:
         double MACD,
         double sign,
         double result,
-        std::string table);
+        std::string table,
+        bool hasMACD);
+    FullBar(
+        int date,
+        int volume,
+        double openBid,
+        double closeBid,
+        double openAsk,
+        double closeAsk,
+        std::string table,
+        bool hasMACD);
 
     std::string table;
+    bool hasMACD;
 
     //Data
     unsigned int date;
@@ -51,8 +62,8 @@ public:
 
     //Functions
     std::string printableBar();
-    static std::vector<FullBar> getBarsBetween(unsigned int, unsigned int, std::string);
-    static std::vector<FullBar> getBarsGreater(unsigned int, std::string);
+    static std::vector<FullBar> getBarsBetween(unsigned int, unsigned int, std::string, bool);
+    static std::vector<FullBar> getBarsGreater(unsigned int, std::string, bool);
     Price convertToPrice();
 };
 

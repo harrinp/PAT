@@ -13,11 +13,11 @@ Runner::Runner(std::string table, std::string longerTable, std::string orderItem
 void Runner::run() {
     Pos    pos        = NOTHING;
     double bal        = 0;
-
+    std::cout << "HERE" << '\n';
     while (true) {
         std::cout << "Current time: " << std::time(0) << '\n';
         bal = exec.getBalance();
-        FullBar lastBar = FullBar(table);
+        FullBar lastBar = FullBar(table, true);
 
         Price p = lastBar.convertToPrice();
 
@@ -45,7 +45,7 @@ void Runner::run() {
                 }
             }
         }
-        FullBar lastBarHourly = FullBar(longerTable);
+        FullBar lastBarHourly = FullBar(longerTable, true);
         if (lastBarHourly.date > lastHourlyDate) {
 
             lastHourlyDate = lastBarHourly.date;
