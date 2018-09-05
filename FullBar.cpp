@@ -215,7 +215,7 @@ std::vector<FullBar> FullBar::getBarsBetween(unsigned int start, unsigned int st
 }
 
 /*
- *      Gets a vector of bars between After a start date
+ *      Gets a vector of bars after a start date
  */
 std::vector<FullBar> FullBar::getBarsGreater(unsigned int start, std::string tableName, bool hasMACD){
     sqlite3 *db;
@@ -272,6 +272,74 @@ std::vector<FullBar> FullBar::getBarsGreater(unsigned int start, std::string tab
 
     return bars;
 }
+/*
+ * Gets bars that haven't been analyzed yet (and one that has)
+ */
+std::vector<FullBar> FullBar::getAnalysisBars(std::string tableName) {
+    sqlite3 *db;
+    sqlite3_stmt *data;
+    int rc; // return code
+
+    rc = sqlite3_open(DATABASE_NAME.c_str(), &db);
+    if(rc) {
+        fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
+    }
+
+    rc = sqlite3_prepare_v2(db, ("SELECT date FROM MACD_" + tableName + " ORDER BY date DESC LIMIT 2").c_str(), -1, &data, NULL);
+    if(rc) {
+        fprintf(stderr, "Can't prepare statement: %s\n", sqlite3_errmsg(db));
+    }
+    sqlite3_step(data);
+    sqlite3_step(data);
+
+    int startDate = sqlite3_column_int(data, 0);
+
+    sqlite3_finalize(data);
+    sqlite3_close(db);
+
+    std::vector<FullBar> bars = getBarsGreater(startDate, tableName, true);
+    return bars;
+
+}
+
+// TODO add a writeBars method
+int FullBar::putAnalysisBars(std::vector<FullBar> barsToPut, std::string tableName) {
+    sqlite3 *db;
+    sqlite3_stmt *insert;
+    int rc; // return code
+
+    rc = sqlite3_open(DATABASE_NAME.c_str(), &db);
+    if(rc) {
+        fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
+    }
+
+    rc = sqlite3_prepare_v2(db, ("INSERT INTO MACD_" + tableName + " (date, EMA26, EMA12, MACD, sign, result) VALUES (?,?,?,?,?,?)").c_str(), -1, &insert, NULL);
+    if(rc) {
+        fprintf(stderr, "Can't prepare statement: %s\n", sqlite3_errmsg(db));
+    }
+
+    rc = sqlite3_exec(db, "BEGIN TRANSACTION", NULL, 0 , NULL);
+    if(rc) {
+        fprintf(stderr, "Can't prepare statement: %s\n", sqlite3_errmsg(db));
+    }
+    for(auto bar : barsToPut) {
+        sqlite3_bind_int(insert, 1, bar.date);
+        sqlite3_bind_double(insert, 2, bar.EMA26);
+        sqlite3_bind_double(insert, 3, bar.EMA12);
+        sqlite3_bind_double(insert, 4, bar.MACD);
+        sqlite3_bind_double(insert, 5, bar.sign);
+        sqlite3_bind_double(insert, 6, bar.result);
+        sqlite3_step(insert);
+        sqlite3_reset(insert);
+        sqlite3_clear_bindings(insert);
+    }
+    
+    sqlite3_exec(db, "END TRANSACTION", NULL, 0, NULL);
+    sqlite3_finalize(insert);
+    return 1;
+}
+
+
 
 Price FullBar::convertToPrice(){
     return Price(date, closeAsk, closeBid);

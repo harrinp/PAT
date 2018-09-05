@@ -64,6 +64,8 @@ public:
     std::string printableBar();
     static std::vector<FullBar> getBarsBetween(unsigned int, unsigned int, std::string, bool);
     static std::vector<FullBar> getBarsGreater(unsigned int, std::string, bool);
+    static std::vector<FullBar> getAnalysisBars(std::string);
+    static int putAnalysisBars(std::vector<FullBar>, std::string);
     Price convertToPrice();
 };
 

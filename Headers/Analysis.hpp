@@ -13,6 +13,7 @@
 #include "DataBase.hpp"
 #include "OandaAPI.hpp"
 #include "Config.hpp"
+#include "FullBar.hpp"
 
 class Analysis{
 public:
@@ -21,7 +22,7 @@ public:
     void initializeMACDTable(std::string, std::string);
     sql::Driver *driver;
     sql::Connection *con;
-    int calcMACD(std::string, std::string);
+    int calcMACD(std::string);
 private:
     // Stripped down for speed
     double EMA(int, double, double);

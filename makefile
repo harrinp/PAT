@@ -6,7 +6,7 @@ CCFLAGS3 = -std=c++11 -lcurl -lsqlite3
 decide:
 	${COMPILER} RunMain.cpp Decider.cpp Runner.cpp FullBar.cpp Executor.cpp Trade.cpp -o runD.out ${CCFLAGS3}
 analyze: Analysis.cpp
-	${COMPILER} Analysis.cpp -o runA.out ${CCFLAGS1} -L/usr/lib -lmysqlcppconn -lPocoNet -lPocoNetSSL
+	${COMPILER} Analysis.cpp FullBar.cpp Trade.cpp -o runA.out ${CCFLAGS1} -L/usr/lib -lmysqlcppconn -lPocoNet -lPocoNetSSL
 test:
 	${COMPILER} TestMain.cpp Decider.cpp Tester.cpp FullBar.cpp TestExec.cpp Trade.cpp -o runT.out ${CCFLAGS2}
 
